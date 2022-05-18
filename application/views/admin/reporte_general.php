@@ -84,7 +84,10 @@
                     </tr>
                   </thead>
                   <tbody>  
-              <?php $suma = 0; ?>   
+              <?php 
+                $suma = 0;
+                $suma_gastos_compra = 0; 
+              ?>   
               <?php foreach ($divisas as $key) : ?>
               <?php if ($key['caja'] == 0) {
                 continue;
@@ -93,8 +96,41 @@
                       <td><img style="width: 30px; height: 15px;" src="<?= base_url('assets/img/' . $key['codigo'] .'.png'); ?>"> <?= $key['codigo']; ?> </td>
                       <td><?= $key['nombre']; ?></td>
                       <td><?= number_format($key['caja'], 2); ?></td>
-                      <td><?= number_format($key['cotizacion'], 4); ?></td>
-                      <td><?= number_format($acum = round($key['caja'] * $key['cotizacion'], 2), 2); ?></td>
+                      <?php 
+                        //verificamos el promedio para la cotizacion del dia
+                        $cotizacion = 0;
+                        foreach ($registro_cotizacion as $arr){
+                         
+                          if ( $arr['compras'] == 0 && $arr['ventas'] == 0 ){
+                          continue;
+                          } 
+                          if($arr['codigo'] == $key["codigo"]){
+                            $suma_gastos_compra = $suma_gastos_compra + $arr['gastos_compra'];
+                            if($arr['gastos_compra']){
+                              $cotizacion = number_format(round($arr['gastos_compra'] / $arr['compras'] , 4), 4);
+                            } 
+                          }
+                        }
+
+                        //si la divisa es soles igualamos a 1 la cotizacion
+                        if($key['codigo'] === 'PEN'){
+                          $cotizacion = 1;
+                        }
+         
+                        $suma_gastos_compra = $suma_gastos_compra + $key['gastos_compra']; 
+                        if($key['gastos_compra']){
+                          echo number_format(round($key['gastos_compra'] / $key['compras'] , 4), 4);
+                        }  
+
+                        //si la cotizacion es 0 o no se ha registrado compras de la divisa 
+                        //se iguala la cotizacion al tipo de cambio para calcular el valor en soles
+                        if($cotizacion == 0){
+                          $cotizacion = $key['cotizacion'];
+                        }
+
+                      ?>
+                      <td><?= $cotizacion; ?></td>
+                      <td><?= number_format($acum = round($key['caja'] * $cotizacion, 2), 2); ?></td>
                     </tr>
               <?php $suma = $suma + $acum; ?>
               <?php endforeach; ?>

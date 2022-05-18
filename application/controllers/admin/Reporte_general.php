@@ -7,7 +7,7 @@ class Reporte_general extends CI_Controller {
 		parent::__construct();
 		$this->load->library('session');
 		$this->load->model(array('operaciones_model', 'divisas_model', 'ent_sal_model', 'cierre_model', 'cuentas_model'));
-		$this->load->helper(array('reporte/divisas', 'reporte/fecha_cierre'));
+		$this->load->helper(array('reporte/divisas', 'reporte/fecha_cierre', 'reporte/operaciones'));
 	}
 
 	public function index() {
@@ -90,12 +90,12 @@ class Reporte_general extends CI_Controller {
 				
 				$array = sumar_divisa($divisas, $operaciones, $ent_sal, $cuentas, $cierre);
 
+				//registro de operaciones para la cotizacion
+				$ope_cotizacion = operaciones_diarias($divisas, $operaciones, $ent_sal);
+
 				
 			}
 
-			
-			
-			
 			$data = array(
 				'header' => $this->load->view('admin/header','',TRUE),
 				'footer' => $this->load->view('admin/footer','',TRUE),
@@ -103,6 +103,7 @@ class Reporte_general extends CI_Controller {
 				'ent_sal' => $ent_sal,
 				'operaciones' => $operaciones,
 				'divisas' => $array,
+				'registro_cotizacion' => $ope_cotizacion
 			);
 
 			$this->load->view('admin/Reporte_general', $data);

@@ -6,7 +6,7 @@
         <div class="sidebar-brand-icon rotate-n-1">
           <i class="fas fa-hand-holding-usd"></i>
         </div>
-        <div class="sidebar-brand-text mx-1">EWFOREX <br><sup>DIVISAS</sup></div>
+        <div class="sidebar-brand-text mx-1"><sup>DIVISAS</sup></div>
       </a>
 
       <!-- Divider -->

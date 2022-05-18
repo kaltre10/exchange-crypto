@@ -249,7 +249,7 @@
                           data.correlativo = Number(latestCorrelativo.correlative_sunat);
 
                           //print
-                          printTicket(data);
+                          // printTicket(data);
           
                                                           
                           getToken(data)
@@ -308,132 +308,132 @@
             });
         }
 
-      async function printTicket(data){
+      // async function printTicket(data){
 
-        const div = document.getElementById('print');
-        const modal = document.createElement('div');
-        modal.classList.add('modal_print');
+      //   const div = document.getElementById('print');
+      //   const modal = document.createElement('div');
+      //   modal.classList.add('modal_print');
         
-        let date = new Date();
-        let fechaBoleta = `${date.getDate()}-${date.getMonth() + 1}-${date.getFullYear()}  ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`;
+      //   let date = new Date();
+      //   let fechaBoleta = `${date.getDate()}-${date.getMonth() + 1}-${date.getFullYear()}  ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`;
 
-        //config cliente
-        if(!data.cliente && data.clienteID == 0){
-          data.cliente = ["REGULAR"];
-        }
+      //   //config cliente
+      //   if(!data.cliente && data.clienteID == 0){
+      //     data.cliente = ["REGULAR"];
+      //   }
 
-        if(!data.cliente && data.clienteID != 0){
+      //   if(!data.cliente && data.clienteID != 0){
           
-          data.cliente = [];
+      //     data.cliente = [];
 
-          fetch('Clientes/get_cliente_id', {
-              method: 'POST',
-              headers: {
-              'Content-Type': 'application/json',
-              },
-              body: JSON.stringify(data.clienteID)
-            })
-          .then(res => res.json())
-          .then(res => {
-            switch(res[0].doc_cliente){
-              case "DNI":
-                  data.cliente[0] = "DNI";
-                  break;
-              case "CE":
-                  data.cliente[0] = "CE";
-                  break;
-              case "RUC":
-                  data.cliente[0] = "RUC";
-                  break;
-              case "PAS":
-                  data.cliente[0] = "PAS";
-                  break;
-            }
+      //     fetch('Clientes/get_cliente_id', {
+      //         method: 'POST',
+      //         headers: {
+      //         'Content-Type': 'application/json',
+      //         },
+      //         body: JSON.stringify(data.clienteID)
+      //       })
+      //     .then(res => res.json())
+      //     .then(res => {
+      //       switch(res[0].doc_cliente){
+      //         case "DNI":
+      //             data.cliente[0] = "DNI";
+      //             break;
+      //         case "CE":
+      //             data.cliente[0] = "CE";
+      //             break;
+      //         case "RUC":
+      //             data.cliente[0] = "RUC";
+      //             break;
+      //         case "PAS":
+      //             data.cliente[0] = "PAS";
+      //             break;
+      //       }
 
-            data.cliente[1] = res[0].n_cliente;
-            data.cliente[2] = res[0].nom_cliente;
+      //       data.cliente[1] = res[0].n_cliente;
+      //       data.cliente[2] = res[0].nom_cliente;
           
-          })
-        } 
+      //     })
+      //   } 
 
-        if(data.cliente.length === 1){
-            data.cliente[0] = "N/";
-            data.cliente[1] = "N/";
-            data.cliente[2] = "CLIENTE";
-        }else{
+      //   if(data.cliente.length === 1){
+      //       data.cliente[0] = "N/";
+      //       data.cliente[1] = "N/";
+      //       data.cliente[2] = "CLIENTE";
+      //   }else{
             
-            switch(data.cliente[0]){
-                case "DNI":
-                    data.cliente[0] = "DNI";
-                    break;
-                case "CE":
-                    data.cliente[0] = "CE";
-                    break;
-                case "RUC":
-                    data.cliente[0] = "RUC";
-                    break;
-                case "PAS":
-                  data.cliente[0] = "PAS";
-                  break;
-            }
-        }
+      //       switch(data.cliente[0]){
+      //           case "DNI":
+      //               data.cliente[0] = "DNI";
+      //               break;
+      //           case "CE":
+      //               data.cliente[0] = "CE";
+      //               break;
+      //           case "RUC":
+      //               data.cliente[0] = "RUC";
+      //               break;
+      //           case "PAS":
+      //             data.cliente[0] = "PAS";
+      //             break;
+      //       }
+      //   }
 
-        //tipo
-        if(data.tipo == 'COMPRA'){
-            tipo = "Compra de ";
-        }else{
-            tipo = "Venta de ";
-        }
+      //   //tipo
+      //   if(data.tipo == 'COMPRA'){
+      //       tipo = "Compra de ";
+      //   }else{
+      //       tipo = "Venta de ";
+      //   }
 
-        console.log("data: ", data)
-        console.log(data.correlativo)
+      //   console.log("data: ", data)
+      //   console.log(data.correlativo)
      
-        modal.innerHTML = `
-        <div>
-          <div>
-            Casa de Cambios ewforex.net</br>
-            Av del Ejército 768, Miraflores
-          <span class="separador">
-            <span>Telf: </span><span class="left"> 955 269 142</span>
-          </span>
-          <span class="separador">
-          <span>RUC: </span><span class="left"> 10064782261</span>
-          </span>
-          -------------------------------------</br>
-          BOLETA DE VENTA ELECTRÓNICA</br>
-          -------------------------------------</br></div>
-          <div class="left">
-            <span>Fecha: </span><span>${fechaBoleta}</span></br>
-            <span>Ticket n: </span><span> B001-${String(data.correlativo)}</span></br>
-            <span>Nombre: </span><span>${String(data.cliente[2])}</span></br>
-            <span>DOC: </span><span>${String(data.cliente[0])} ${String(data.cliente[1])}</span></br>
-            <span>Dirección: </span><span>LIMA</span></br>
-            <span>Operación: </span><span>${tipo} ${data.moneda}</span></br>
-          </div>
-          -------------------------------------
-          <div class="left">
-            <span>Monto:</span><span> ${data.monto} ${data.moneda}</span></br>                   
-            <span>Tipo de Cambio:<span/> ${data.cotizacion}<span></span>
-          </div>
-          -------------------------------------
-          <div class="left">
-            <span>Total: </span><span> ${data.recibe} ${data.moneda_recibe}</span></br>                   
-            <span>Usuario: caja<span/><span></span>
-          </div>
-          <div class="footer"></br>
-          Representación impresa de la boleta
-          electrónica</br>
-          Para consultar el documento ingrese
-          a https://https://ww1.sunat.gob.pe/ol-ti-itconsultaunificadalibre/consultaUnificadaLibre/consulta</br>
-          </div>
+      //   modal.innerHTML = `
+      //   <div>
+      //     <div>
+      //       Casa de Cambios ewforex.net</br>
+      //       Av del Ejército 768, Miraflores
+      //     <span class="separador">
+      //       <span>Telf: </span><span class="left"> 955 269 142</span>
+      //     </span>
+      //     <span class="separador">
+      //     <span>RUC: </span><span class="left"> 10064782261</span>
+      //     </span>
+      //     -------------------------------------</br>
+      //     BOLETA DE VENTA ELECTRÓNICA</br>
+      //     -------------------------------------</br></div>
+      //     <div class="left">
+      //       <span>Fecha: </span><span>${fechaBoleta}</span></br>
+      //       <span>Ticket n: </span><span> B001-${String(data.correlativo)}</span></br>
+      //       <span>Nombre: </span><span>${String(data.cliente[2])}</span></br>
+      //       <span>DOC: </span><span>${String(data.cliente[0])} ${String(data.cliente[1])}</span></br>
+      //       <span>Dirección: </span><span>LIMA</span></br>
+      //       <span>Operación: </span><span>${tipo} ${data.moneda}</span></br>
+      //     </div>
+      //     -------------------------------------
+      //     <div class="left">
+      //       <span>Monto:</span><span> ${data.monto} ${data.moneda}</span></br>                   
+      //       <span>Tipo de Cambio:<span/> ${data.cotizacion}<span></span>
+      //     </div>
+      //     -------------------------------------
+      //     <div class="left">
+      //       <span>Total: </span><span> ${data.recibe} ${data.moneda_recibe}</span></br>                   
+      //       <span>Usuario: caja<span/><span></span>
+      //     </div>
+      //     <div class="footer"></br>
+      //     Representación impresa de la boleta
+      //     electrónica</br>
+      //     Para consultar el documento ingrese
+      //     a https://https://ww1.sunat.gob.pe/ol-ti-itconsultaunificadalibre/consultaUnificadaLibre/consulta</br>
+      //     </div>
 
-          !Gracias por su preferencia!
-        </div>   
-        `;
-        div.appendChild(modal);
-        window.print();
-        modal.remove();
-      }
+      //     !Gracias por su preferencia!
+      //   </div>   
+      //   `;
+      //   div.appendChild(modal);
+      //   window.print();
+      //   modal.remove();
+      // }
       </script>
 
       <!-- End of Main Content -->

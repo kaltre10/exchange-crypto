@@ -7,7 +7,7 @@ class Admin_dashboard extends CI_Controller {
 		parent::__construct();
 		$this->load->model(array('operaciones_model', 'ent_sal_model', 'divisas_model', 'cierre_model', 'cuentas_model', 'ganancia_model'));
 		$this->load->library('session');
-		$this->load->helper(array('reporte/divisas', 'reporte/fecha_cierre', 'gastos_operaciones'));
+		$this->load->helper(array('reporte/divisas', 'reporte/fecha_cierre', 'gastos_operaciones', 'reporte/operaciones'));
 	}
 
 	public function index() {
@@ -124,6 +124,12 @@ class Admin_dashboard extends CI_Controller {
 			$operaciones = $this->operaciones_model->getall($desde, $hasta);
 			$divisas = $this->divisas_model->getall();
 			$cuentas = $this->cuentas_model->getall();
+
+			//reporte de divisas para calcular y guardar la cotizacion
+			$array = operaciones_diarias($divisas, $operaciones, $ent_sal);
+			$suma_gastos_compra = 0; 
+			$cotizacion = 0;
+
 			//CALCULAMOS DIA ANTERIOR QUE TENGA REGISTROS DE CIERRE
 			$d = date("Y-m-d 00:00:00", strtotime('-1 day', time()));
 			$h = date("Y-m-d 23:59:59", strtotime('-1 day', time()));
@@ -142,11 +148,26 @@ class Admin_dashboard extends CI_Controller {
 				}
 				$ganancia = sumar_divisa($divisas, $operaciones, $ent_sal, $cuentas, $cierre);
 				foreach ($ganancia as $key) {
+
+					//verificamos el promedio para la cotizacion del dia
+					$cotizacion = 0;
+					foreach ($array as $arr){
+						if ( $arr['compras'] == 0 && $arr['ventas'] == 0 ){
+						continue;
+						} 
+						if($arr['codigo'] == $key["codigo"]){
+							$suma_gastos_compra = $suma_gastos_compra + $arr['gastos_compra'];
+							if($arr['gastos_compra']){
+								$cotizacion = number_format(round($arr['gastos_compra'] / $arr['compras'] , 4), 4);
+							} 
+						}
+					}
+
 					if ($key['codigo'] == 'PEN' ) {
 						$suma = $suma + $key['caja']; 
 					}
 					if ($key['codigo'] != 'PEN') {
-						$suma = $suma + $key['caja'] * $key['cotizacion']; 
+						$suma = $suma + $key['caja'] * $cotizacion; 
 					}
 				}
 			}

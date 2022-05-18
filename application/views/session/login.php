@@ -3,7 +3,7 @@
       <div class="row">
         <div class="col-sm-9 col-md-7 col-lg-5 mx-auto">
           <div class="text-center">
-            <a href="https://ewforex.net"><h1>ewforex.net</h1></a>
+            <a href="#"><h1>EXCHANGE</h1></a>
           </div> 
           <div class="card card-signin my-5 shadow mb-1 bg-white">
             <div class="card-body">

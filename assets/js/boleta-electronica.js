@@ -5,13 +5,13 @@ async function getToken(data){
 
     let cantidad;
     let tipo;
-
+  
     if(data.tipo == 'COMPRA'){
-        tipo = "COMPRA DE DÓLARES";
+        tipo = `Compra de ${data.moneda}`;
     }else{
-        tipo = "VENTA DE DÓLARES";
+        tipo = `Venta de ${data.moneda}`;
     }
-
+   
     const montoText = numeroALetras(data.recibe);
     const montoT = montoText.trim();
     const token = tokenData[0].token;
@@ -69,8 +69,8 @@ function configJson(data){
     } 
 
     if(data.cliente.length === 1){
-        data.cliente[0] = 1;
-        data.cliente[1] = 10000001;
+        data.cliente[0] = 0; //codigo o cliente general
+        data.cliente[1] = 00000000;
         data.cliente[2] = "CLIENTE";
     }else{
         
@@ -102,10 +102,10 @@ function configJson(data){
         "correlativo": data.correlativo,
         "fechaEmision": new Date("Y-m-dTH:i:s"),
         "formaPago": {
-          "moneda": "PEN",
+          "moneda": data.moneda,
           "tipo": "Contado"
         },
-        "tipoMoneda": "PEN",
+        "tipoMoneda": data.moneda_recibe,
         "client": {
           "tipoDoc": String(data.cliente[0]),
           "numDoc": Number(data.cliente[1]),
@@ -119,11 +119,11 @@ function configJson(data){
           }
         },
         "company": {
-          "ruc": 10064782261,
-          "razonSocial": "Raúl Fernando Luna Toro",
-          "nombreComercial": "ewforex.net",
+          "ruc": 10093753688,
+          "razonSocial": "CARDENAS RAMOS MARI LUZ TRIGIDIA",
+          "nombreComercial": "EL FIEL",
           "address": {
-            "direccion": "Av del éjercito 768, Miraflores",
+            "direccion": "Av Tomás Marsano 2819, Santiago de Surco",
             "provincia": "LIMA",
             "departamento": "LIMA",
             "distrito": "LIMA",
@@ -199,11 +199,11 @@ async function sendBaja(id, fecha){
     "fecGeneracion": fechaBoleta,
     "fecComunicacion": fechaBoleta,
     "company": {
-      "ruc": 10064782261,
-      "razonSocial": "Raúl Fernando Luna Toro",
-      "nombreComercial": "ewforex.net",
+      "ruc": 10093753688,
+      "razonSocial": "CARDENAS RAMOS MARI LUZ TRIGIDIA",
+      "nombreComercial": "EL FIEL",
       "address": {
-        "direccion": "Av del éjercito 768, Miraflores",
+        "direccion": "Av Tomás Marsano 2819, Santiago de Surco",
         "provincia": "LIMA",
         "departamento": "LIMA",
         "distrito": "LIMA",
@@ -234,8 +234,8 @@ async function configJsonPdf(data){
   //si el cliente es generico
   if(data.cli_operacion == 0){
 
-      data.cliente[0] = 1;
-      data.cliente[1] = 10000001;
+      data.cliente[0] = 0;
+      data.cliente[1] = 00000000;
       data.cliente[2] = "CLIENTE";
 
   }else{
@@ -273,11 +273,11 @@ async function configJsonPdf(data){
 
   let tipo;
   if(data.tip_operacion == 'COMPRA'){
-    tipo = "COMPRA DE DÓLARES";
+    tipo = `Compra de ${data.div_operacion}`;
   }else{
-    tipo = "VENTA DE DÓLARES";
+    tipo = `Venta de ${data.div_operacion}`;
   }
-
+  
   const montoText = numeroALetras(data.rec_operacion);
   const montoT = montoText.trim();
 
@@ -300,10 +300,10 @@ async function configJsonPdf(data){
     "correlativo": data.correlative_sunat,
     "fechaEmision": `${year}-${mes}-${dia}T${hora}:${minutos}:${segundos}-05:00`,
     "formaPago": {
-      "moneda": "PEN",
+      "moneda": data.div_operacion,
       "tipo": "Contado"
     },
-    "tipoMoneda": "PEN",
+    "tipoMoneda": data.mon_rec_operacion,
     "client": {
       "tipoDoc": data.cliente[0],
       "numDoc": data.cliente[1],
@@ -317,11 +317,11 @@ async function configJsonPdf(data){
       }
     },
     "company": {
-      "ruc": 10064782261,
-      "razonSocial": "Raúl Fernando Luna Toro",
-      "nombreComercial": "ewforex.net",
+      "ruc": 10093753688,
+      "razonSocial": "CARDENAS RAMOS MARI LUZ TRIGIDIA",
+      "nombreComercial": "EL FIEL",
       "address": {
-        "direccion": "Av del éjercito 768, Miraflores",
+        "direccion": "Av Tomás Marsano 2819, Santiago de Surco",
         "provincia": "LIMA",
         "departamento": "LIMA",
         "distrito": "LIMA",
