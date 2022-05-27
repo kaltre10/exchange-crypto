@@ -87,6 +87,13 @@
               <?php 
                 $suma = 0;
                 $suma_gastos_compra = 0; 
+                $porcentaje_compra_anterior = 0;
+                $porcentaje_compra = 0;
+                $peso_anterior = 0; //peso del valor porcentual
+                $peso = 0; //peso del valor porcentual
+                $index = 0;
+                $cotizacion = 0;
+                $cot = 0;
               ?>   
               <?php foreach ($divisas as $key) : ?>
               <?php if ($key['caja'] == 0) {
@@ -95,48 +102,81 @@
                     <tr>
                       <td><img style="width: 30px; height: 15px;" src="<?= base_url('assets/img/' . $key['codigo'] .'.png'); ?>"> <?= $key['codigo']; ?> </td>
                       <td><?= $key['nombre']; ?></td>
-                      <td><?= number_format($key['caja'], 2); ?></td>
-                      <?php 
-                        //verificamos el promedio para la cotizacion del dia
-                        $cotizacion = 0;
-                        foreach ($registro_cotizacion as $arr){
-                         
-                          if ( $arr['compras'] == 0 && $arr['ventas'] == 0 ){
-                          continue;
-                          } 
-                          if($arr['codigo'] == $key["codigo"]){
-                            $suma_gastos_compra = $suma_gastos_compra + $arr['gastos_compra'];
-                            if($arr['gastos_compra']){
-                              $cotizacion = number_format(round($arr['gastos_compra'] / $arr['compras'] , 4), 4);
-                            } 
-                          }
-                        }
+                      <td><?= str_pad($key['caja'], 4); ?></td>
+                      <?php
+                       foreach ($cierres as $cie){
+                       
+                          if($cie[$index]->cod_divisa_cierre === $key["codigo"]){
+                            //formula calcular cotizacion
+                            //cantidad_cierre_anterior * 100 / cantidad _total;
+                            $porcentaje_compra_anterior = ($cie[$index]->can_cierre * 100) / $key['caja'];
+                            $peso_anterior = $porcentaje_compra_anterior * $cie[$index]->cot_cierre;
 
+                            foreach ($registro_cotizacion as $arr){
+                           
+                                if ( $arr['compras'] == 0){
+                                  continue;
+                                } 
+                                if($arr['codigo'] == $key["codigo"]){
+                                  
+                                  $cotizacion = str_pad(round($arr['gastos_compra'] / $arr['compras'] , 4), 4);
+                                  $porcentaje_compra = ($arr['compras'] * 100) / $key['caja'];
+                                  $peso = $cotizacion * $porcentaje_compra;
+
+                                  $cot =  ($peso_anterior + $peso) / 100;
+
+                                  //verificamos si ya se hizo el cierre del dia
+                                  if($cie[$index]->fec_cierre == date('Y-m-d')){
+                                    $cot = $cie[$index]->cot_cierre;
+                                  }
+                                 
+                                }
+                            }
+                          
+                          }
+                          //si no hay compras en el dia y la cotizacion es 0 se iguala al cierre anterior
+                          if(!$cot){
+                       
+                            $cot = $cie[$index]->cot_cierre;
+                            
+                          }
+                          $index++;
+                        }
+                
+                       
                         //si la divisa es soles igualamos a 1 la cotizacion
                         if($key['codigo'] === 'PEN'){
-                          $cotizacion = 1;
-                        }
-         
-                        $suma_gastos_compra = $suma_gastos_compra + $key['gastos_compra']; 
-                        if($key['gastos_compra']){
-                          echo number_format(round($key['gastos_compra'] / $key['compras'] , 4), 4);
-                        }  
+                          $cot = 1;
+                        } 
+                
+                       //si no hay cierre anterior(primer dia)
+                      if($cierres === 0){
+                        $cot = $key["cotizacion"];
+                        foreach ($registro_cotizacion as $arr){
+                          if ( $arr['compras'] == 0){
+                            continue;
+                          } 
 
-                        //si la cotizacion es 0 o no se ha registrado compras de la divisa 
-                        //se iguala la cotizacion al tipo de cambio para calcular el valor en soles
-                        if($cotizacion == 0){
-                          $cotizacion = $key['cotizacion'];
+                          if($arr['codigo'] == $key["codigo"] && $key["cotizacion"] > 0){
+                            $cot = str_pad(round($arr['gastos_compra'] / $arr['compras'] , 4), 4);
+                          }
                         }
+                      }
 
+                      //si existe post y se consulta el reporte de fecha anterior 
+                      if($this->input->post('desde') && $this->input->post('desde') !== date('Y-m-d')){
+                        $cot = $key["cotizacion"];
+                      }
+                      
                       ?>
-                      <td><?= $cotizacion; ?></td>
-                      <td><?= number_format($acum = round($key['caja'] * $cotizacion, 2), 2); ?></td>
+                      <td><?= str_pad(round($cot, 4), 4); ?></td>
+                      <td><?= str_pad($acum = round($key['caja'] * $cot, 4), 4); ?></td>
                     </tr>
               <?php $suma = $suma + $acum; ?>
               <?php endforeach; ?>
                     <tr>
                       <td colspan="4" class=" text-center font-weight-bold">Total</td>
-                      <td class="font-weight-bold"><?= number_format($suma, 2); ?></td>
+                      <td class="font-weight-bold"><?= str_pad($suma, 4, ); ?></td>
                     </tr>
                   </tbody>
                 </table>

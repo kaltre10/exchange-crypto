@@ -105,10 +105,10 @@
                   <tbody>
                     <tr <?php echo ($key->status == 0) ? "class='text-danger font-weight-lighter' style='style=opacity: 0.8;'" : ""; ?>>
                       <td><?= $key->tip_operacion; ?></td>
-                      <td><img style="width: 30px; height: 15px;" src="<?= base_url('assets/img/' . $key->div_operacion .'.png'); ?>"> <?= number_format($key->mon_operacion, 2) . " " . $key->div_operacion; ?></td>
+                      <td><img style="width: 30px; height: 15px;" src="<?= base_url('assets/img/' . $key->div_operacion .'.png'); ?>"> <?= str_pad($key->mon_operacion, 4) . " " . $key->div_operacion; ?></td>
                       <td><?= $key->fec_operacion; ?></td>
                       <td><?= $key->cot_operacion; ?></td>
-                      <td><img style="width: 30px; height: 15px;" src="<?= base_url('assets/img/' . $key->mon_rec_operacion .'.png'); ?>"> <?= number_format($key->rec_operacion, 2) . " " . $key->mon_rec_operacion; ?></td>
+                      <td><img style="width: 30px; height: 15px;" src="<?= base_url('assets/img/' . $key->mon_rec_operacion .'.png'); ?>"> <?= str_pad($key->rec_operacion, 4) . " " . $key->mon_rec_operacion; ?></td>
                       <td rowspan="2" style="
     vertical-align: inherit;
 "><button class="btn btn-warning" type="button" onclick="anular('<?= $key->id_operacion; ?>', '<?= $key->fec_operacion; ?>');" <?php echo ($key->status == 0) ? "disabled" : ""; ?> title="Anular"><i class="fa fa-exclamation" aria-hidden="true"></i></button></td>

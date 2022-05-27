@@ -29,10 +29,8 @@ class Reporte_general extends CI_Controller {
 			$cuentas = $this->cuentas_model->getall();
 			$hay_datos  = $this->cierre_model->get();
 			$var = count($hay_datos) - 1; //optener ultimo registro de cierre
-
 			$i = 0;
 			if ($this->input->post('desde') && $this->input->post('desde') != date('Y-m-d')) {
-
 				$d = $this->input->post('desde');
 				$h = $this->input->post('desde');
 				$cierre = $this->cierre_model->getall($d, $h);
@@ -56,6 +54,28 @@ class Reporte_general extends CI_Controller {
 					);
 					array_push($array, $datos_divisas);
 				}
+
+				//calculo de los 5 ultimos cierres
+				$index = 0;
+				$cierres = [];
+				if(count($hay_datos) > 0){
+					$row = array_column($hay_datos, 'fec_cierre'); //primer registro 
+					$row[0]; //primera fecha del cierre insertado para detener el while
+					do {
+						$d = date("Y-m-d", strtotime("-$index day", time()));
+						$h = date("Y-m-d", strtotime("-$index day", time()));
+						$cierreDay = $this->cierre_model->getall($d, $h);
+						
+						if($cierreDay){;
+							array_push($cierres, $cierreDay);
+						}
+
+						$index++;
+						
+					} while ($row[0] != $d && count($cierres) <= 5);
+				}
+				// var_dump($cierres);
+				$ope_cotizacion = operaciones_diarias($divisas, $operaciones, $ent_sal);
 				
 			}
 
@@ -90,10 +110,31 @@ class Reporte_general extends CI_Controller {
 				
 				$array = sumar_divisa($divisas, $operaciones, $ent_sal, $cuentas, $cierre);
 
-				//registro de operaciones para la cotizacion
-				$ope_cotizacion = operaciones_diarias($divisas, $operaciones, $ent_sal);
+				//calculo de los 5 ultimos cierres
+				$index = 0;
+				$cierres = [];
+				if(count($hay_datos) > 0){
+					$row = array_column($hay_datos, 'fec_cierre'); //primer registro 
+					$row[0]; //primera fecha del cierre insertado para detener el while
+					do {
+					    $d = date("Y-m-d", strtotime("-$index day", time()));
+					    $h = date("Y-m-d", strtotime("-$index day", time()));
+					    $cierreDay = $this->cierre_model->getall($d, $h);
+						
+						if($cierreDay){;
+							array_push($cierres, $cierreDay);
+						}
 
-				
+						$index++;
+					    
+					} while ($row[0] != $d && count($cierres) <= 5);
+				}
+				// var_dump($cierres);
+				$ope_cotizacion = operaciones_diarias($divisas, $operaciones, $ent_sal);
+			}
+
+			if(!$cierres){
+				$cierres = 0;
 			}
 
 			$data = array(
@@ -103,7 +144,9 @@ class Reporte_general extends CI_Controller {
 				'ent_sal' => $ent_sal,
 				'operaciones' => $operaciones,
 				'divisas' => $array,
-				'registro_cotizacion' => $ope_cotizacion
+				'registro_cotizacion' => $ope_cotizacion,
+				'cierre' => $cierre,
+				'cierres' => $cierres
 			);
 
 			$this->load->view('admin/Reporte_general', $data);

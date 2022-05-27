@@ -99,17 +99,17 @@
                     <tr>
                       <td><img style="width: 30px; height: 15px;" src="<?= base_url('assets/img/' . $key['codigo'] .'.png'); ?>"> <?= $key['codigo']; ?> </td>
                       <td><?= $key['nombre']; ?></td>
-                      <td><?= number_format($key['compras'], 2); ?></td>
-                      <td><?= number_format($key['gastos_compra'], 2); ?></td>
+                      <td><?= str_pad($key['compras'], 4); ?></td>
+                      <td><?= str_pad($key['gastos_compra'], 4); ?></td>
                       <?php $suma_gastos_compra = $suma_gastos_compra + $key['gastos_compra']; ?>
                       <td><?php  if($key['gastos_compra']){
-                        echo number_format(round($key['gastos_compra'] / $key['compras'] , 4), 4);
+                        echo str_pad(round($key['gastos_compra'] / $key['compras'] , 4), 4);
                       }  ?></td>
-                      <td><?= number_format($key['ventas'], 2); ?></td>
-                      <td><?= number_format($key['gastos_venta'], 2); ?></td>
+                      <td><?= str_pad($key['ventas'], 4); ?></td>
+                      <td><?= str_pad($key['gastos_venta'], 4); ?></td>
                       <?php $suma_gastos_venta = $suma_gastos_venta + $key['gastos_venta']; ?>
                       <td><?php if ($key['gastos_venta']) {
-                        echo number_format(round($key['gastos_venta'] / $key['ventas'], 4), 4);
+                        echo str_pad(round($key['gastos_venta'] / $key['ventas'], 4), 4);
                       } ?></td>
                     </tr>
               <?php endforeach; ?>
@@ -117,10 +117,10 @@
                       <th></th>
                       <th></th>
                       <th></th>
-                      <th class="font-weight-bold"><?= number_format(round($suma_gastos_compra, 2), 2); ?></th>
+                      <th class="font-weight-bold"><?= str_pad(round($suma_gastos_compra, 4), 4); ?></th>
                       <th></th>
                       <th></th>
-                      <th class="font-weight-bold"><?= number_format(round($suma_gastos_venta, 2), 2); ?></th>
+                      <th class="font-weight-bold"><?= str_pad(round($suma_gastos_venta, 4), 4); ?></th>
                       <th></th>
                     </tr>
                   </tbody>
