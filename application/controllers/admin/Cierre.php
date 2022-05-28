@@ -82,23 +82,27 @@ class Cierre extends CI_Controller {
 
 			foreach ($array as $arra){
 				foreach ($divisas as $key) {
-					
+						
 					if ($arra['caja'] == 0) {
 						continue;
 					} 
 					
 					
 					if (!$this->cierre_model->get_check(date("Y-m-d"), $arra['codigo'])) {
-						
+							
 						foreach ($cierres as $cie){
-						
-						
+							
+							
 							if($cie[$index]->cod_divisa_cierre === $arra['codigo']){
+							
 								
 								foreach ($ope_cotizacion as $arr){
+									
+									//asignamos la cotizacion del cierre anterior 
+									$cot = $cie[$index]->cot_cierre;
 								
 							
-									if ( $arr['compras'] == 0 && $arr['ventas'] == 0){
+									if ( $arr['compras'] == 0){
 									continue;
 									} 
 								
@@ -140,24 +144,17 @@ class Cierre extends CI_Controller {
 							$index++;
 						}
 
-						//si no hay cierre anterior(primer dia)
-							
+						//si no hay cierre anterior(primer dia)		
 						if($cierres === 0){ 
-								
-							$cot = $key->com_divisa;
+							$cot = $arra["cotizacion"];
 							foreach ($ope_cotizacion as $arr){
-								
 								if ( $arr['compras'] == 0){
 									continue;
 								} 
-								
-							
 								if($arr['codigo'] == $arra["codigo"] && $arra["cotizacion"] > 0){
 									$cot = str_pad(round($arr['gastos_compra'] / $arr['compras'] , 4), 4);
 								}
-								
 							}
-							
 						}
 						
 						if($arra['codigo'] == 'PEN'){
@@ -255,7 +252,7 @@ class Cierre extends CI_Controller {
 			$hasta = date("Y-m-d") . " 23:59:59";//ajustando la fecha para que tome todo el dia
 		
 			$ent_sal = $this->ent_sal_model->getall($desde, $hasta);
-			$ent_sal = 0;
+			// $ent_sal = 0;
 			$operaciones = $this->operaciones_model->getall($desde, $hasta);
 			$divisas = $this->divisas_model->getall();
 			$cuentas = $this->cuentas_model->getall();
@@ -337,9 +334,11 @@ class Cierre extends CI_Controller {
 							if($cie[$index]->cod_divisa_cierre === $arra['codigo']){
 								
 								foreach ($ope_cotizacion as $arr){
-								
+
+									//asignamos la cotizacion del cierre anterior 
+									$cot = $cie[$index]->cot_cierre;
 							
-									if ( $arr['compras'] == 0 && $arr['ventas'] == 0){
+									if ( $arr['compras'] == 0){
 									continue;
 									} 
 								
@@ -385,7 +384,7 @@ class Cierre extends CI_Controller {
 							
 						if($cierres === 0){ 
 								
-							$cot = $key->com_divisa;
+							$cot = $arra["cotizacion"];
 							foreach ($ope_cotizacion as $arr){
 								
 								if ( $arr['compras'] == 0){
@@ -406,8 +405,6 @@ class Cierre extends CI_Controller {
 						} 
 					}
 
-					
-
 				}	
 				
 				if ($arra['codigo'] == 'PEN' ) {
@@ -417,6 +414,17 @@ class Cierre extends CI_Controller {
 					$suma = $suma + $arra['caja'] * $cot; 
 				}
 				
+				//restamos las entradas a la caja para no sumarlo a la ganancia
+				foreach($ent_sal as $ent){
+					if($ent->cod_divisa == $arra['codigo'] && $ent->tip_ent_sal == 'Entrada'){
+						if ($ent->cod_divisa == 'PEN' ) {
+							$suma = $suma - $ent->can_ent_sal; 
+						}
+						if ($ent->cod_divisa != 'PEN') {
+							$suma = $suma - ($ent->can_ent_sal * $cot); 
+						}
+					}
+				}
 				
 			}
 

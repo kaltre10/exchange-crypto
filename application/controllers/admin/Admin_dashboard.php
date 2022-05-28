@@ -216,6 +216,7 @@ class Admin_dashboard extends CI_Controller {
 		$divisas = $this->divisas_model->getall();
 	
 		foreach ($ganancia as $key){
+			
 			if ($key['caja'] == 0) {
 				continue;
 			}
@@ -226,7 +227,10 @@ class Admin_dashboard extends CI_Controller {
 				if($cie[$index]->cod_divisa_cierre === $key["codigo"]){
 					
 				  foreach ($ope_cotizacion as $arr){
-					
+
+					//asignamos la cotizacion del cierre anterior 
+					$cot = $cie[$index]->cot_cierre;
+
 					  if ( $arr['compras'] == 0){
 						continue;
 					  } 
@@ -270,27 +274,40 @@ class Admin_dashboard extends CI_Controller {
 			 //si no hay cierre anterior(primer dia)
 			if($cierres === 0){
 			  $cot = $key["cotizacion"];
-			  foreach ($registro_cotizacion as $arr){
+			  foreach ($ope_cotizacion as $arr){
+		
 				if ( $arr['compras'] == 0){
+
 				  continue;
 				} 
-
+			
 				if($arr['codigo'] == $key["codigo"] && $key["cotizacion"] > 0){
+				
 				  $cot = str_pad(round($arr['gastos_compra'] / $arr['compras'] , 4), 4);
 				}
 			  }
-			}
 
+			}
+			
 			if ($key['codigo'] == 'PEN' ) {
 				$suma = $suma + $key['caja']; 
 			}
 			if ($key['codigo'] != 'PEN') {
 				$suma = $suma + $key['caja'] * $cot; 
 			}
-		
 			
+			//restamos las entradas a la caja para no sumarlo a la ganancia
+			foreach($ent_sal as $ent){
+				if($ent->cod_divisa == $key['codigo'] && $ent->tip_ent_sal == 'Entrada'){
+					if ($ent->cod_divisa == 'PEN' ) {
+						$suma = $suma - $ent->can_ent_sal; 
+					}
+					if ($ent->cod_divisa != 'PEN') {
+						$suma = $suma - ($ent->can_ent_sal * $cot); 
+					}
+				}
+			}
 		}
-		
 		return $suma;
 
 	}
@@ -305,7 +322,7 @@ class Admin_dashboard extends CI_Controller {
 		}
 		
 		if ($ganancia) {
-			return $ganancia;
+			return str_pad(round($ganancia, 2), 2);
 		}else{
 			$ganancia = 0;
 			return $ganancia;

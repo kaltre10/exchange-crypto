@@ -97,7 +97,7 @@
               ?>   
               <?php foreach ($divisas as $key) : ?>
               <?php if ($key['caja'] == 0) {
-               
+             
                 continue;
               } ?>
                     <tr>
@@ -105,20 +105,20 @@
                       <td><?= $key['nombre']; ?></td>
                       <td><?= str_pad($key['caja'], 4); ?></td>
                       <?php
-                      
+                     
                        foreach ($cierres as $cie){
-                      
+                       
                           if($cie[$index]->cod_divisa_cierre === $key["codigo"]){
                           
                             foreach ($registro_cotizacion as $arr){
-                              
-                                if ( $arr['compras'] == 0 ){
-                              
+                                //asignamos la cotizacion del cierre anterior 
+                                $cot = $cie[$index]->cot_cierre;
+                                if ( $arr['compras'] == 0 ){ 
                                   continue;
                                 } 
-                              
+                               
                                 if($arr['codigo'] == $key["codigo"]){
-                                  
+                                
                                   //formula calcular cotizacion
                                   //cantidad_cierre_anterior * 100 / cantidad _total;
                                   $porcentaje_compra_anterior = ($cie[$index]->can_cierre * 100) / ($key['caja'] + $arr['ventas']);
@@ -143,13 +143,12 @@
                                  
                                 }
                             }
-                          
+                         
                           }
+                         
                           //si no hay compras en el dia y la cotizacion es 0 se iguala al cierre anterior
                           if(!$cot){
-                       
-                            $cot = $cie[$index]->cot_cierre;
-                            
+                            $cot = $cie[$index]->cot_cierre;                            
                           }
                           $index++;
                         }
@@ -159,12 +158,12 @@
                         if($key['codigo'] === 'PEN'){
                           $cot = 1;
                         } 
-                
+              
                        //si no hay cierre anterior(primer dia)
                       if($cierres === 0){
                         $cot = $key["cotizacion"];
                         foreach ($registro_cotizacion as $arr){
-                          if ( $arr['compras'] == 0  && $arr['ventas'] == 0 ){
+                          if ( $arr['compras'] == 0){
                             continue;
                           } 
 
@@ -187,7 +186,7 @@
               <?php endforeach; ?>
                     <tr>
                       <td colspan="4" class=" text-center font-weight-bold">Total</td>
-                      <td class="font-weight-bold"><?= str_pad($suma, 4, ); ?></td>
+                      <td class="font-weight-bold"><?= str_pad($suma, 4,); ?></td>
                     </tr>
                   </tbody>
                 </table>
