@@ -36,11 +36,10 @@ class Reporte_general extends CI_Controller {
 				$cierre = $this->cierre_model->getall($d, $h);
 				if (!$cierre) {
 					while (!$cierre && count($hay_datos) > 0 && $hay_datos[$var]->fec_cierre != date('Y-m-d')) {
-							// echo "aqui";
+							
 							$d = date("Y-m-d", strtotime("-$i day", time()));
 						    $h = date("Y-m-d", strtotime("-$i day", time()));
 						    $cierre = $this->cierre_model->getall($d, $h);
-						    // print_r($cierre);
 							$i++;
 						}
 				}
@@ -50,7 +49,7 @@ class Reporte_general extends CI_Controller {
 						'codigo' => $c->cod_divisa_cierre,
 						'nombre' => $c->nom_divisa_cierre,
 					    'caja' => $c->can_cierre,
-					    'cotizacion' => $c->cot_cierre,
+					    'cotizacion' => $c->cot_cierre
 					);
 					array_push($array, $datos_divisas);
 				}
@@ -74,7 +73,7 @@ class Reporte_general extends CI_Controller {
 						
 					} while ($row[0] != $d && count($cierres) <= 5);
 				}
-				// var_dump($cierres);
+		
 				$ope_cotizacion = operaciones_diarias($divisas, $operaciones, $ent_sal);
 				
 			}

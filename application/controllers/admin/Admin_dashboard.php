@@ -148,36 +148,7 @@ class Admin_dashboard extends CI_Controller {
 				}
 			}
 			$ganancia = sumar_divisa($divisas, $operaciones, $ent_sal, $cuentas, $cierre);
-			
-			// 	foreach ($ganancia as $key) {
-
-			// 		//verificamos el promedio para la cotizacion del dia
-			// 		$cotizacion = 0;
-			// 		foreach ($array as $arr){
-						
-			// 			if ( $arr['compras'] == 0 && $arr['ventas'] == 0 ){
-			// 			continue;
-			// 			} 
-						
-			// 			if($arr['codigo'] == $key["codigo"]){
-						
-			// 				$suma_gastos_compra = $suma_gastos_compra + $arr['gastos_compra'];
-			// 				if($arr['gastos_compra']){
-			// 					$cotizacion = number_format(round($arr['gastos_compra'] / $arr['compras'] , 4), 4);
-			// 				} 
-			// 			}
-						
-			// 		}
-				
-			// 		if ($key['codigo'] == 'PEN' ) {
-			// 			$suma = $suma + $key['caja']; 
-			// 		}
-			// 		if ($key['codigo'] != 'PEN') {
-			// 			$suma = $suma + $key['caja'] * $cotizacion; 
-			// 		}
-			// 	}
-			// }
-
+		
 			//calculo de los 5 ultimos cierres
 		$index = 0;
 		$cierres = [];
@@ -221,6 +192,9 @@ class Admin_dashboard extends CI_Controller {
 				continue;
 			}
 
+			//asignamos primero la cotizacion registrada en el sistema
+			$cot = $key["cotizacion"];
+
 			foreach ($cierres as $cie){
 				
 
@@ -228,8 +202,10 @@ class Admin_dashboard extends CI_Controller {
 					
 				  foreach ($ope_cotizacion as $arr){
 
-					//asignamos la cotizacion del cierre anterior 
-					$cot = $cie[$index]->cot_cierre;
+					//asignamos la cotizacion del cierre anterior si es la misma divisa 
+					if($arr['codigo'] == $key["codigo"]){ 
+						$cot = $cie[$index]->cot_cierre;
+					}
 
 					  if ( $arr['compras'] == 0){
 						continue;
@@ -247,21 +223,32 @@ class Admin_dashboard extends CI_Controller {
 
 						$cot =  ($peso_anterior + $peso) / 100;
 
-						//verificamos si ya se hizo el cierre del dia
-						if($cie[$index]->fec_cierre == date('Y-m-d')){
-						  $cot = $cie[$index]->cot_cierre;
-						}
 					   
 					  }
 				  }
 				
 				}
+				
+
 				//si no hay compras en el dia y la cotizacion es 0 se iguala al cierre anterior
-				if(!$cot){
-			 
-				  $cot = $cie[$index]->cot_cierre;
-				  
+				$last_date_cierre = $cierres[0][0]->fec_cierre;
+				foreach($cie as $c){
+				  foreach($ope_cotizacion as $reg){                           
+					if($reg['codigo'] == $key["codigo"] && $c->cod_divisa_cierre == $key["codigo"] && $c->fec_cierre == $last_date_cierre && $reg['compras'] == 0){
+					  $cot = $c->cot_cierre;
+					}
+				  }
 				}
+
+				 //verificamos si ya se hizo el cierre del dia
+				 if($cie[$index]->fec_cierre == date('Y-m-d')){       
+					foreach ($cie as $c){       
+					  if($c->cod_divisa_cierre == $key["codigo"]){
+						$cot = $c->cot_cierre;
+					  }
+					}
+				  }
+
 				$index++;
 			  }
 	  

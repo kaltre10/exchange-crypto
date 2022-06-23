@@ -92,6 +92,7 @@
                 $peso_anterior = 0; //peso del valor porcentual
                 $peso = 0; //peso del valor porcentual
                 $index = 0;
+               
                 $cotizacion = 0;
                 $cot = 0;
               ?>   
@@ -99,61 +100,93 @@
               <?php if ($key['caja'] == 0) {
              
                 continue;
+                
               } ?>
                     <tr>
                       <td><img style="width: 30px; height: 15px;" src="<?= base_url('assets/img/' . $key['codigo'] .'.png'); ?>"> <?= $key['codigo']; ?> </td>
                       <td><?= $key['nombre']; ?></td>
                       <td><?= str_pad($key['caja'], 4); ?></td>
                       <?php
-                     
-                       foreach ($cierres as $cie){
-                       
-                          if($cie[$index]->cod_divisa_cierre === $key["codigo"]){
+                      //asignamos primero la cotizacion registrada en el sistema
+				              $cot = $key['cotizacion'];
+                    
+                      foreach ($cierres as $cie){
+          
+                        foreach($cie as $c){
+                         
+                          if($c->cod_divisa_cierre === $key['codigo'] ){
                           
+                           
                             foreach ($registro_cotizacion as $arr){
-                                //asignamos la cotizacion del cierre anterior 
-                                $cot = $cie[$index]->cot_cierre;
-                                if ( $arr['compras'] == 0 ){ 
-                                  continue;
-                                } 
+                              
+                              //asignamos la cotizacion del cierre anterior si es la misma divisa 
+                              if($arr['codigo'] == $cie[$index]->cod_divisa_cierre){ 
                                
+                                foreach ($cie as $c){ 
+                                 
+                                  if($c->cod_divisa_cierre == $arr['codigo']){
+                                    $cot = $c->cot_cierre;
+                                  
+                                  }
+                                }
+  
+                              }
+                             
+                                if ( $arr['compras'] == 0){
+                                continue;
+                                } 
+                              
                                 if($arr['codigo'] == $key["codigo"]){
                                 
                                   //formula calcular cotizacion
                                   //cantidad_cierre_anterior * 100 / cantidad _total;
                                   $porcentaje_compra_anterior = ($cie[$index]->can_cierre * 100) / ($key['caja'] + $arr['ventas']);
-                                  $peso_anterior = $cie[$index]->cot_cierre * $porcentaje_compra_anterior;
+                                  $peso_anterior = $porcentaje_compra_anterior * $cie[$index]->cot_cierre;
                                  
-                             
                                   $cotizacion = str_pad(round($arr['gastos_compra'] / $arr['compras'] , 4), 4);
-                                  // if($cotizacion){
-                                  //   $cotizacion = 0;
-                                  // }
-                       
                                   $porcentaje_compra = ($arr['compras'] * 100) / ($key['caja'] + $arr['ventas']);
                                   $peso = $cotizacion * $porcentaje_compra;
-                                 
+                                  
                                   $cot =  ($peso_anterior + $peso) / 100;
-                         
-                                 
-                                  //verificamos si ya se hizo el cierre del dia
-                                  if($cie[$index]->fec_cierre == date('Y-m-d')){
-                                    $cot = $cie[$index]->cot_cierre;
-                                  }
-                                 
+                              
                                 }
-                            }
-                         
+                                
+                             
+                               
+                              }
+                                 
+                             
                           }
-                         
-                          //si no hay compras en el dia y la cotizacion es 0 se iguala al cierre anterior
-                          if(!$cot){
-                            $cot = $cie[$index]->cot_cierre;                            
-                          }
-                          $index++;
                         }
+       
+                      
+                        //si no hay compras en el dia y la cotizacion es 0 se iguala al cierre anterior
+                        $last_date_cierre = $cierres[0][0]->fec_cierre;
+                        foreach($cie as $c){
+                          foreach($registro_cotizacion as $reg){                        
+                            if($reg['codigo'] == $key["codigo"] && $c->cod_divisa_cierre == $key["codigo"] && $c->fec_cierre == $last_date_cierre && $reg['compras'] == 0){   
+                              $cot = $c->cot_cierre;
+                            }
+                          }
+                        }
+                        
+
+                        //verificamos si ya se hizo el cierre del dia
+                           
+                        if($cie[$index]->fec_cierre == date('Y-m-d')){       
+                          foreach ($cie as $c){  
+                            
+                            if($c->cod_divisa_cierre == $key["codigo"]){
+                            
+                              $cot = $c->cot_cierre;
+                            }
+                          }
+                        }
+                        
+                        $index++;
+                      }
                 
-                       
+                  
                         //si la divisa es soles igualamos a 1 la cotizacion
                         if($key['codigo'] === 'PEN'){
                           $cot = 1;
@@ -161,18 +194,41 @@
               
                        //si no hay cierre anterior(primer dia)
                       if($cierres === 0){
-                        $cot = $key["cotizacion"];
+                        
                         foreach ($registro_cotizacion as $arr){
                           if ( $arr['compras'] == 0){
                             continue;
                           } 
-
+                         
                           if($arr['codigo'] == $key["codigo"] && $key["cotizacion"] > 0){
                             $cot = str_pad(round($arr['gastos_compra'] / $arr['compras'] , 4), 4);
                           }
                         }
                       }
-
+                    
+                      
+               
+                       //si no hay cierre anterior de la divisa comprada
+                       if($key['caja'] > 0 && is_array($cierres)){
+                        
+                        $index2 = 0;
+                        $suma_gastos_venta = 0;
+                        foreach ($registro_cotizacion as $arr){
+                          if ( $arr['compras'] == 0){
+                            continue;
+                          } 
+                        
+                          $array_cierres = array_column($cierres[0], 'cod_divisa_cierre');
+                         
+                          foreach($cierres as $cie){
+                            if($arr['codigo'] == $key["codigo"] && !in_array($arr['codigo'], $array_cierres)){
+                              
+                              $cot = str_pad(round($arr['gastos_compra'] / $arr['compras'] , 4), 4);        
+                            }
+                          }
+                        }
+                      }
+                      
                       //si existe post y se consulta el reporte de fecha anterior 
                       if($this->input->post('desde') && $this->input->post('desde') !== date('Y-m-d')){
                         $cot = $key["cotizacion"];
