@@ -100,7 +100,7 @@ function configJson(data){
         "tipoDoc": "03",
         "serie": "B001",
         "correlativo": data.correlativo,
-        "fechaEmision": new Date("Y-m-dTH:i:s"),
+        "fechaEmision": "2022-06-07T14:00:04-05:00",
         "formaPago": {
           "moneda": data.moneda,
           "tipo": "Contado"
@@ -119,11 +119,11 @@ function configJson(data){
           }
         },
         "company": {
-          "ruc": 10093753688,
-          "razonSocial": "CARDENAS RAMOS MARI LUZ TRIGIDIA",
-          "nombreComercial": "EL FIEL",
+          "ruc": 20609364212,
+          "razonSocial": "EWFOREX",
+          "nombreComercial": "EWFOREX",
           "address": {
-            "direccion": "Av Tomás Marsano 2819, Santiago de Surco",
+            "direccion": "Av del Ejército 768, Miraflores",
             "provincia": "LIMA",
             "departamento": "LIMA",
             "distrito": "LIMA",
@@ -199,11 +199,11 @@ async function sendBaja(id, fecha){
     "fecGeneracion": fechaBoleta,
     "fecComunicacion": fechaBoleta,
     "company": {
-      "ruc": 10093753688,
-      "razonSocial": "CARDENAS RAMOS MARI LUZ TRIGIDIA",
-      "nombreComercial": "EL FIEL",
+      "ruc": 20609364212,
+      "razonSocial": "EWFOREX",
+      "nombreComercial": "EWFOREX",
       "address": {
-        "direccion": "Av Tomás Marsano 2819, Santiago de Surco",
+        "direccion": "Av del Ejército 768, Miraflores",
         "provincia": "LIMA",
         "departamento": "LIMA",
         "distrito": "LIMA",
@@ -248,8 +248,8 @@ async function configJsonPdf(data){
       body: JSON.stringify(data.cli_operacion)
     });
     const customer = await queryCustomer.json();
-
-    switch(customer.doc_cliente){
+    
+    switch(customer[0].doc_cliente){
           case "DNI":
               data.cliente[0] = 1;
               break;
@@ -263,10 +263,8 @@ async function configJsonPdf(data){
             data.cliente[0] = 7;
             break;
     }
-
-    data.cliente[1] = customer.n_cliente;
-    data.cliente[2] = customer.nom_cliente;
-
+    data.cliente[1] = customer[0].n_cliente;
+    data.cliente[2] = customer[0].nom_cliente;
   }
 
   // console.log(data, token);
@@ -291,7 +289,7 @@ async function configJsonPdf(data){
   let segundos = date.getSeconds();
   // let fechaBoleta = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}T${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`;
   // console.log(`${year}-${mes}-${dia}T${hora}:${minutos}:${segundos}-05:00`)
-
+  
   const boletaData = {
     "ublVersion": "2.1",
     "tipoOperacion": "0101",
@@ -317,11 +315,11 @@ async function configJsonPdf(data){
       }
     },
     "company": {
-      "ruc": 10093753688,
-      "razonSocial": "CARDENAS RAMOS MARI LUZ TRIGIDIA",
-      "nombreComercial": "EL FIEL",
+      "ruc": 20609364212,
+      "razonSocial": "EWFOREX",
+      "nombreComercial": "EWFOREX",
       "address": {
-        "direccion": "Av Tomás Marsano 2819, Santiago de Surco",
+        "direccion": "Av del Ejército 768, Miraflores",
         "provincia": "LIMA",
         "departamento": "LIMA",
         "distrito": "LIMA",
