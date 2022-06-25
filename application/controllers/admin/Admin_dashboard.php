@@ -195,8 +195,13 @@ class Admin_dashboard extends CI_Controller {
 			//asignamos primero la cotizacion registrada en el sistema
 			$cot = $key["cotizacion"];
 
-			foreach ($cierres as $cie){
-				
+			$last_date = $cierres[0][array_key_last($cierres)]->fec_cierre;
+			
+			$result = array_filter($cierres, function($a) {
+			return $a == $last_date;
+			}, ARRAY_FILTER_USE_KEY);
+
+			foreach ($result as $cie){
 
 				if($cie[$index]->cod_divisa_cierre === $key["codigo"]){
 					

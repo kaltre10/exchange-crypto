@@ -100,7 +100,7 @@
               <?php if ($key['caja'] == 0) {
              
                 continue;
-                
+               
               } ?>
                     <tr>
                       <td><img style="width: 30px; height: 15px;" src="<?= base_url('assets/img/' . $key['codigo'] .'.png'); ?>"> <?= $key['codigo']; ?> </td>
@@ -109,16 +109,19 @@
                       <?php
                       //asignamos primero la cotizacion registrada en el sistema
 				              $cot = $key['cotizacion'];
-                    
-                      foreach ($cierres as $cie){
-          
-                        foreach($cie as $c){
+                  
+                      $last_date = $cierres[0][array_key_last($cierres)]->fec_cierre;
+                      $result = array_filter($cierres, function($a) {
+                        return $a == $last_date;
+                      }, ARRAY_FILTER_USE_KEY);
+                                        
+                      foreach ($result as $cie){
+                      
                          
-                          if($c->cod_divisa_cierre === $key['codigo'] ){
-                          
-                           
+                          if($cie[$index]->cod_divisa_cierre === $key['codigo'] ){
+                            
                             foreach ($registro_cotizacion as $arr){
-                              
+                             
                               //asignamos la cotizacion del cierre anterior si es la misma divisa 
                               if($arr['codigo'] == $cie[$index]->cod_divisa_cierre){ 
                                
@@ -135,7 +138,7 @@
                                 if ( $arr['compras'] == 0){
                                 continue;
                                 } 
-                              
+                               
                                 if($arr['codigo'] == $key["codigo"]){
                                 
                                   //formula calcular cotizacion
@@ -148,7 +151,7 @@
                                   $peso = $cotizacion * $porcentaje_compra;
                                   
                                   $cot =  ($peso_anterior + $peso) / 100;
-                              
+                                  
                                 }
                                 
                              
@@ -157,7 +160,7 @@
                                  
                              
                           }
-                        }
+                        
        
                       
                         //si no hay compras en el dia y la cotizacion es 0 se iguala al cierre anterior
@@ -172,20 +175,17 @@
                         
 
                         //verificamos si ya se hizo el cierre del dia
-                           
                         if($cie[$index]->fec_cierre == date('Y-m-d')){       
                           foreach ($cie as $c){  
-                            
                             if($c->cod_divisa_cierre == $key["codigo"]){
-                            
                               $cot = $c->cot_cierre;
                             }
                           }
                         }
-                        
+                      
                         $index++;
                       }
-                
+                      
                   
                         //si la divisa es soles igualamos a 1 la cotizacion
                         if($key['codigo'] === 'PEN'){
