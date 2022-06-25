@@ -54,6 +54,9 @@
                 <h6 class="m-0 font-weight-bold text-primary">Lista de Operaciones</h6>
                 <form action="" method="POST">
                   <div class="form-row align-items-center">
+                     <div class="col">
+                        <a href="Excel?desde=<?= $this->input->post('desde') ?>&hasta=<?= $this->input->post('hasta') ?>&tipo=<?= $this->input->post('tipo') ?>&mayor=<?= $this->input->post('mayor') ?>&menor=<?= $this->input->post('menor') ?>">Excel</a>
+                    </div>
                     <div class="col">
                       <label class="sr-only">Mayor a</label>
                       <input type="number" class="form-control mb-2" value="<?php if($this->input->post('mayor')){ echo $this->input->post('mayor'); }?>" name="mayor" placeholder="Mayor a">
