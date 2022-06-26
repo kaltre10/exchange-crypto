@@ -63,6 +63,7 @@
             <a class="collapse-item" href="<?= base_url("admin/Reporte_general"); ?>">General</a>
             <a class="collapse-item" href="<?= base_url("admin/Reporte_detallado"); ?>">Detallado</a>
             <a class="collapse-item" href="<?= base_url("admin/Reporte_diario"); ?>">Diario</a>
+            <a class="collapse-item" href="<?= base_url("admin/Utilidad"); ?>">Utilidad</a>
           </div>
         </div>
       </li>

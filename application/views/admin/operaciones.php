@@ -206,9 +206,7 @@
                     .then((aceptado) => {
                       //VERIFICANDO LOS DATOS ENVIADOS
                       if (aceptado){
-                        
-                        // //print
-                        // printTicket(data);
+                      
           
                         swal("Guardando y Reportando...!", {
                           icon: "info",   
@@ -250,8 +248,7 @@
                           data.correlativo = Number(latestCorrelativo.correlative_sunat);
                          
                           //print
-                          printTicket(data);
-          
+                          // printTicket(data);
                                                           
                           getToken(data)
                             .then(respuesta => {
