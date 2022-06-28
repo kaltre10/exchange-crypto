@@ -98,9 +98,128 @@
           const data = await query.json();
           const dataDB = data.sort((a,b) => a.id_operacion - b.id_operacion);
           
+          formato(dataDB);
           
 
         }
+
+        const formato = async (dataDB) => {
+
+          
+
+          let forma = {
+                        "fecGeneracion": "2022-06-27T00:00:00-05:00",
+                        "fecResumen": "2022-06-27T00:00:00-05:00",
+                        "correlativo": "001",
+                        "moneda": "PEN",
+                        "company": {
+                        "ruc": 20609364212,
+                        "razonSocial": "EWFOREX",
+                        "nombreComercial": "EWFOREX",
+                        "address": {
+                            "direccion": "Av del Ejército 768, Miraflores",
+                            "provincia": "LIMA",
+                            "departamento": "LIMA",
+                            "distrito": "LIMA",
+                            "ubigueo": "150101"
+                          }
+                        },
+                        "details": []
+                    }
+
+          dataDB.forEach( d => {
+            
+            d.cliente = [];
+            if(!d.cli_operacion && d.cli_operacion != 0){
+              
+            
+
+              fetch('Clientes/get_cliente_id', {
+                  method: 'POST',
+                  headers: {
+                  'Content-Type': 'application/json',
+                  },
+                  body: JSON.stringify(d.cli_operacion)
+                })
+              .then(res => res.json())
+              .then(res => {
+
+                switch(res[0].doc_cliente){
+                  case "DNI":
+                      d.cliente[0] = 1;
+                      break;
+                  case "CE":
+                      d.cliente[0] = 4;
+                      break;
+                  case "RUC":
+                      d.cliente[0] = 6;
+                      break;
+                  case "PAS":
+                      d.cliente[0] = 7;
+                      break;
+                }
+
+                d.cliente[1] = res[0].n_cliente;
+                d.cliente[2] = res[0].nom_cliente;
+              
+              })
+            } 
+
+            if(d.cli_operacion.length === 1){
+                d.cliente[0] = 0; //codigo o cliente general
+                d.cliente[1] = "00000000";
+                d.cliente[2] = "CLIENTE";
+            }else{
+                
+                switch(d.cliente[0]){
+                    case "DNI":
+                        d.cliente[0] = 1;
+                        break;
+                    case "CE":
+                        d.cliente[0] = 4;
+                        break;
+                    case "RUC":
+                        d.cliente[0] = 6;
+                        break;
+                    case "PAS":
+                      d.cliente[0] = 7;
+                      break;
+                }
+            }
+           
+            forma.details.push({
+              "tipoDoc": "03",
+              "serieNro": `B001-${d.correlative_sunat}`,
+              "estado": "1",
+              "clienteTipo": "1",
+              "clienteNro": "00000000",
+              "total": d.rec_operacion,
+              "mtoOperGravadas": 0,
+              "mtoOperInafectas": 0,
+              "mtoOperExoneradas": d.rec_operacion,
+              "mtoOperExportacion": 0,
+              "mtoOtrosCargos": 0,
+              "mtoIGV": 0
+            })
+          })
+          // console.log(forma)
+          const response = await fetchApi(forma);
+          const sunat = await response.json();
+          console.log(sunat)
+        }
+
         apiQuery();
+
+
+        function fetchApi(data){
+          return fetch('https://facturacion.apisperu.com/api/v1/summary/send', {
+              method: 'POST',
+              headers: {
+              'Content-Type': 'application/json',
+              'Authorization': "bearer "
+              },
+              body: JSON.stringify(data)
+          })
+        }
       </script>
 <?= $footer; ?>

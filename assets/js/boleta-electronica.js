@@ -93,14 +93,13 @@ function configJson(data){
     let date = new Date();
    
     // let fechaBoleta = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}T${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`;
-    console.log(data)
     const boletaData = {
         "ublVersion": "2.1",
         "tipoOperacion": "0101",
         "tipoDoc": "03",
         "serie": "B001",
         "correlativo": data.correlativo,
-        "fechaEmision": "2022-06-07T14:00:04-05:00",
+        "fechaEmision": new Date("Y-m-dTH:i:s"),
         "formaPago": {
           "moneda": data.moneda,
           "tipo": "Contado"
