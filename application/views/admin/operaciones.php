@@ -252,7 +252,7 @@
                                                           
                           getToken(data)
                             .then(respuesta => {
-                              console.log(respuesta)
+                              // console.log(respuesta)
                               if(respuesta.sunatResponse.success){
                                 swal("Reportado correctamente a la Sunat!", {
                                   icon: "success",   

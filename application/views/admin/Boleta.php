@@ -60,7 +60,11 @@
               <div class="form-row">
                 <div class="form-group col-12">
                   <label class="col-form-label">Token</label>
-                  <textarea name="token" class="form-control" rows="3" ><?= $boleta[0]->token; ?></textarea>
+                  <textarea name="token" class="form-control" rows="3" placeholder="bearer [token apisperu]"><?php
+                    if($boleta[0]->token){
+                      echo $boleta[0]->token;
+                    }
+                    ?></textarea>
                 </div>
               </div>
               </div>

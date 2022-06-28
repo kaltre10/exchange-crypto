@@ -238,6 +238,7 @@
          }
 
          function anular(id, fecha){
+        
                 swal({
                   title: "Seguro desea Anular?",
                   icon: "warning",
@@ -254,7 +255,9 @@
                     sendBaja(id, fecha)
                       .then(res => res.json())   
                       .then(res => {
+                        console.log(res);
                         if(res.sunatResponse.success){
+                          
                            swal("Anulado con exito!", {
                               icon: "success",   
                               buttons: {

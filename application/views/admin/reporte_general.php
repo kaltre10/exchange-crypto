@@ -154,6 +154,11 @@
                                   $caja_sal_ent = 0;
                                   //salidas y entradas
                                   foreach($ent_sal as $ent){
+
+                                    //verificamos que no este anulado
+                                    if($ent->sta_ent_sal == 0){
+                                      continue;
+                                    }
 				
                                     if($ent->cod_divisa == $key['codigo'] && $ent->tip_ent_sal == 'Entrada'){
                                     

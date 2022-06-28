@@ -93,7 +93,7 @@ function configJson(data){
     let date = new Date();
    
     // let fechaBoleta = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}T${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`;
-    
+    console.log(data)
     const boletaData = {
         "ublVersion": "2.1",
         "tipoOperacion": "0101",

@@ -125,4 +125,16 @@ class Operaciones extends CI_Controller {
 		echo json_encode($query[0]);
 	}
 
+	public function operacionesAll(){
+		$data = serialize($this->input->raw_input_stream);
+		$date = explode('"', $data);
+		
+		$query = array(
+			'desde' => $date[4], 
+			'hasta' => $date[8]
+		);
+		$queryDB = $this->operaciones_model->getall($date[4], $date[8]);
+		echo json_encode($queryDB);
+	}
+
 }

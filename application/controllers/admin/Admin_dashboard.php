@@ -70,6 +70,12 @@ class Admin_dashboard extends CI_Controller {
 			//CALCULAMOS DIA ANTERIOR QUE TENGA REGISTROS DE CIERRE
 			$d = date("Y-m-d 00:00:00", strtotime('-1 day', time()));
 			$h = date("Y-m-d 23:59:59", strtotime('-1 day', time()));
+
+			$desde = date("Y-m-d") . " 00:00:00";//ajustando la fecha para que tome todo el dia
+			$hasta = date("Y-m-d") . " 23:59:59";//ajustando la fecha para que tome todo el dia
+
+			$ent_sal = $this->ent_sal_model->getall($desde, $hasta);
+
 			$cierre = $this->cierre_model->getall($d, $h);	
 			$i = 1;
 			//Verificamos si existe datos en la BD tabla cierre
@@ -109,8 +115,7 @@ class Admin_dashboard extends CI_Controller {
 					}
 				}
 			}
-		
-
+			
 			return $suma_total;
 			
 	}
@@ -187,12 +192,12 @@ class Admin_dashboard extends CI_Controller {
 		$cot = 0;
 		$divisas = $this->divisas_model->getall();
 	
-		foreach ($ganancia as $key){
+		foreach ($ganancia as $key){	
 			
 			if ($key['caja'] == 0) {
 				continue;
 			}
-
+			
 			//asignamos primero la cotizacion registrada en el sistema
 			$cot = $key["cotizacion"];
 			
@@ -206,13 +211,13 @@ class Admin_dashboard extends CI_Controller {
 			}else{
 				$result = $cierres;
 			}
-
+			
 			foreach ($result as $cie){
-
+				
 				if($cie[$index]->cod_divisa_cierre === $key["codigo"]){
 					
 				  foreach ($ope_cotizacion as $arr){
-
+					
 					//asignamos la cotizacion del cierre anterior si es la misma divisa 
 					if($arr['codigo'] == $key["codigo"]){ 
 						$cot = $cie[$index]->cot_cierre;
@@ -222,10 +227,15 @@ class Admin_dashboard extends CI_Controller {
 						continue;
 					  } 
 					  if($arr['codigo'] == $key["codigo"]){
-
+						
 						$caja_sal_ent = 0;
 						//salidas y entradas
 						foreach($ent_sal as $ent){
+
+							//verificamos que no este anulado
+							if($ent->sta_ent_sal == 0){
+								continue;
+							}
 	  
 							if($ent->cod_divisa == $key['codigo'] && $ent->tip_ent_sal == 'Entrada'){
 						  
@@ -240,7 +250,7 @@ class Admin_dashboard extends CI_Controller {
 							  }
 	
 						}
-
+						
 						//formula calcular cotizacion
 						//cantidad_cierre_anterior * 100 / cantidad _total;
 						$porcentaje_compra_anterior = ($cie[$index]->can_cierre * 100) / ((($key['caja'] + $arr['ventas']) - $caja_sal_ent));
@@ -281,7 +291,7 @@ class Admin_dashboard extends CI_Controller {
 				$index++;
 			  }
 	  
-			 
+			
 			  //si la divisa es soles igualamos a 1 la cotizacion
 			  if($key['codigo'] === 'PEN'){
 				$cot = 1;
@@ -289,75 +299,85 @@ class Admin_dashboard extends CI_Controller {
 	  
 			 //si no hay cierre anterior(primer dia)
 			if($cierres === 0){
+				
 			  $cot = $key["cotizacion"];
+			  
 			  foreach ($ope_cotizacion as $arr){
-		
+				
 				if ( $arr['compras'] == 0){
 
 				  continue;
 				} 
-			
-				if($arr['codigo'] == $key["codigo"] && $key["cotizacion"] > 0){
 				
-				  $cot = str_pad(round($arr['gastos_compra'] / $arr['compras'] , 4), 4);
+				if($arr['codigo'] == $key["codigo"] && $key["cotizacion"] > 0){
+					$cot = str_pad(round($arr['gastos_compra'] / $arr['compras'] , 4), 4);
+				
 				}
 			  }
 
 			}
-
+	
 			
 			if ($key['codigo'] == 'PEN' ) {
-			
+				
 				$suma = $suma + $key['caja']; 
 			}
 		
 			if ($key['codigo'] != 'PEN' ) {
 				
 				$suma = $suma + $key['caja'] * $cot; 
-			
+				
 			}
-			
-					
+		
 			//restamos las entradas a la caja para no sumarlo a la ganancia
-			foreach($ent_sal as $ent){
-				// echo $key['caja']. "- ".$cot. "-" .$suma . "-". $ent->can_ent_sal . "<br>";
-				if($ent->cod_divisa == $key['codigo'] && $ent->tip_ent_sal == 'Entrada'){
-					
-					if ($ent->cod_divisa == 'PEN') {
-						$suma = $suma - $ent->can_ent_sal; 
+				foreach($ent_sal as $ent){
+					// echo $suma . "<br>";
+					//verificamos que no este anulado
+					if($ent->sta_ent_sal == 0){
+						continue;
 					}
-					if ($ent->cod_divisa != 'PEN') {
-						$suma = $suma - ($ent->can_ent_sal * $cot); 
+					if($ent->cod_divisa == $key['codigo'] && $ent->tip_ent_sal == 'Entrada'){
+					
+						if ($ent->cod_divisa == 'PEN') {
+							
+							// echo $suma  ."-" .$ent->can_ent_sal. "<br>";
+							$suma = $suma - $ent->can_ent_sal; 
+							
+						}
+					
+						if ($ent->cod_divisa != 'PEN') {
+							// echo $key['caja']. "- ".$cot. "-" .$suma . "-". $ent->can_ent_sal . "<br>";
+							$suma = $suma - ($ent->can_ent_sal * $cot); 
+						
+						}
+						
+					}
+					
+					if($ent->cod_divisa == $key['codigo'] && $ent->tip_ent_sal == 'Salida'){
+						
+						if ($ent->cod_divisa == 'PEN' ) {
+							$suma = $suma + $ent->can_ent_sal; 
+							
+						}
+						if ($ent->cod_divisa != 'PEN') {
+							
+							$suma = $suma + ($ent->can_ent_sal * $cot); 
+							
+						}
 						
 					}
 					
 				}
-				
-				if($ent->cod_divisa == $key['codigo'] && $ent->tip_ent_sal == 'Salida'){
-				
-					if ($ent->cod_divisa == 'PEN' ) {
-						$suma = $suma + $ent->can_ent_sal; 
-						
-					}
-					if ($ent->cod_divisa != 'PEN') {
-						
-						$suma = $suma + ($ent->can_ent_sal * $cot); 
-						
-					}
 					
-				}
-				
-			}
+			
 		}
 		
-
 		return $suma;
 
 	}
 
 	public function ganancia(){
 		$cierre = $this->get_cierre();
-		// echo $cierre . "<br>";
 		$reporte_dia = $this->get_reporte();
 		if ($cierre > $reporte_dia) {
 			$ganancia = $cierre - $reporte_dia;

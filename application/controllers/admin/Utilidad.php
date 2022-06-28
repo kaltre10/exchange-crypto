@@ -168,6 +168,11 @@ class Utilidad extends CI_Controller {
 					$caja_sal_ent = 0;
 					//salidas y entradas
 					foreach($ent_sal as $ent){
+
+						//verificamos que no este anulado
+						if($ent->sta_ent_sal == 0){
+							continue;
+						}
   
 						if($ent->cod_divisa == $key['codigo'] && $ent->tip_ent_sal == 'Entrada'){
 					  
@@ -263,6 +268,12 @@ class Utilidad extends CI_Controller {
 		//restamos las entradas a la caja para no sumarlo a la ganancia
 		foreach($ent_sal as $ent){
 			// echo $key['caja']. "- ".$cot. "-" .$suma . "-". $ent->can_ent_sal . "<br>";
+
+			//verificamos que no este anulado
+			if($ent->sta_ent_sal == 0){
+				continue;
+			}
+
 			if($ent->cod_divisa == $key['codigo'] && $ent->tip_ent_sal == 'Entrada'){
 				
 				if ($ent->cod_divisa == 'PEN') {
@@ -364,6 +375,7 @@ public function gastos(){
 	$suma_gastos = 0;
 	$suma = 0;
 	foreach ($gastos as $gasto) {
+
 		if ($gasto->sta_ent_sal == 1 && $gasto->tip_ent_sal == "Salida" && $gasto->cod_divisa == "PEN") {
 			  $suma_gastos = $suma_gastos + $gasto->can_ent_sal; 
 		}  

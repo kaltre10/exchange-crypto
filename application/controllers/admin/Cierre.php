@@ -470,6 +470,12 @@ class Cierre extends CI_Controller {
 				//restamos las entradas a la caja para no sumarlo a la ganancia
 			foreach($ent_sal as $ent){
 				// echo $key['caja']. "- ".$cot. "-" .$suma . "-". $ent->can_ent_sal . "<br>";
+
+				//verificamos que no este anulado
+				if($ent->sta_ent_sal == 0){
+					continue;
+				}
+				
 				if($ent->cod_divisa == $key['codigo'] && $ent->tip_ent_sal == 'Entrada'){
 					
 					if ($ent->cod_divisa == 'PEN') {
@@ -499,19 +505,27 @@ class Cierre extends CI_Controller {
 			}
 				
 			}
-			
+		
+		//verificamos que no sea negativo
+		// if($suma < 0) $suma = 0;
 		return $suma;
 	}
 
 	public function ganancia(){
-		$reporte_dia = $this->get_reporte();
 		$cierre = $this->get_cierre();
-		// echo $reporte_dia . "<br>";
-		// echo $cierre . "<br>";
-		// return;
-		$ganancia = $reporte_dia - $cierre;
-		$ganancia = round($ganancia, 2);
-		return $ganancia;
+		$reporte_dia = $this->get_reporte();
+		if ($cierre > $reporte_dia) {
+			$ganancia = $cierre - $reporte_dia;
+		}else{
+			$ganancia = $reporte_dia - $cierre;
+		}
+		
+		if ($ganancia) {
+			return str_pad(round($ganancia, 2), 2);
+		}else{
+			$ganancia = 0;
+			return $ganancia;
+		}
 	}
 
 	public function check_ganancia(){
