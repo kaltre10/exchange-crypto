@@ -97,11 +97,13 @@
                 $cot = 0;
               ?>   
               <?php foreach ($divisas as $key) : ?>
+              
               <?php if ($key['caja'] == 0) {
-             
+                
                 continue;
                
               } ?>
+                
                     <tr>
                       <td><img style="width: 30px; height: 15px;" src="<?= base_url('assets/img/' . $key['codigo'] .'.png'); ?>"> <?= $key['codigo']; ?> </td>
                       <td><?= $key['nombre']; ?></td>
@@ -109,15 +111,23 @@
                       <?php
                       //asignamos primero la cotizacion registrada en el sistema
 				              $cot = $key['cotizacion'];
-                  
-                      $last_date = $cierres[0][array_key_last($cierres)]->fec_cierre;
-                      $result = array_filter($cierres, function($a) {
-                        return $a == $last_date;
-                      }, ARRAY_FILTER_USE_KEY);
-                                        
+
+                      if($cierres != 0){
+                        $last_date = $cierres[0][array_key_last($cierres)]->fec_cierre;
+
+                        $result = array_filter($cierres, function($a) {
+                          return $a == $last_date;
+                        }, ARRAY_FILTER_USE_KEY);
+
+                      }else{
+                        $result = $cierres;
+                      }
+                     
+                     
+                     
                       foreach ($result as $cie){
                       
-                         
+                        
                           if($cie[$index]->cod_divisa_cierre === $key['codigo'] ){
                             
                             foreach ($registro_cotizacion as $arr){
@@ -138,16 +148,33 @@
                                 if ( $arr['compras'] == 0){
                                 continue;
                                 } 
-                               
-                                if($arr['codigo'] == $key["codigo"]){
                                 
+                                if($arr['codigo'] == $key["codigo"]){
+
+                                  $caja_sal_ent = 0;
+                                  //salidas y entradas
+                                  foreach($ent_sal as $ent){
+				
+                                    if($ent->cod_divisa == $key['codigo'] && $ent->tip_ent_sal == 'Entrada'){
+                                    
+                                        $caja_sal_ent = $caja_sal_ent + $ent->can_ent_sal; 
+                                       
+                                    }
+
+                                    if($ent->cod_divisa == $key['codigo'] && $ent->tip_ent_sal == 'Salida'){
+                                    
+                                      $caja_sal_ent = $caja_sal_ent - $ent->can_ent_sal; 
+                                     
+                                    }
+                                  }
+                                  
                                   //formula calcular cotizacion
                                   //cantidad_cierre_anterior * 100 / cantidad _total;
-                                  $porcentaje_compra_anterior = ($cie[$index]->can_cierre * 100) / ($key['caja'] + $arr['ventas']);
+                                  $porcentaje_compra_anterior = ($cie[$index]->can_cierre * 100) / ((($key['caja'] + $arr['ventas']) - $caja_sal_ent));
                                   $peso_anterior = $porcentaje_compra_anterior * $cie[$index]->cot_cierre;
                                  
                                   $cotizacion = str_pad(round($arr['gastos_compra'] / $arr['compras'] , 4), 4);
-                                  $porcentaje_compra = ($arr['compras'] * 100) / ($key['caja'] + $arr['ventas']);
+                                  $porcentaje_compra = ($arr['compras'] * 100) /((($key['caja'] + $arr['ventas']) - $caja_sal_ent));
                                   $peso = $cotizacion * $porcentaje_compra;
                                   
                                   $cot =  ($peso_anterior + $peso) / 100;
@@ -205,8 +232,6 @@
                           }
                         }
                       }
-                    
-                      
                
                        //si no hay cierre anterior de la divisa comprada
                        if($key['caja'] > 0 && is_array($cierres)){

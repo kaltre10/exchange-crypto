@@ -15,6 +15,7 @@ class Admin_dashboard extends CI_Controller {
 			|| $this->session->userdata('rango') == 1) {
 
 			$gastos = $this->gastos();
+	
 			$data = array(
 				'num_operaciones' =>  $this->operaciones_model->get_n_operaciones(date("Y-m-d 00:00:00"), date("Y-m-d 23:59:59")),
 				'gastos' => $gastos['suma_gastos'], //LLAMAMOS AL METODO
@@ -148,7 +149,7 @@ class Admin_dashboard extends CI_Controller {
 				}
 			}
 			$ganancia = sumar_divisa($divisas, $operaciones, $ent_sal, $cuentas, $cierre);
-		
+			
 			//calculo de los 5 ultimos cierres
 		$index = 0;
 		$cierres = [];
@@ -194,12 +195,17 @@ class Admin_dashboard extends CI_Controller {
 
 			//asignamos primero la cotizacion registrada en el sistema
 			$cot = $key["cotizacion"];
-
-			$last_date = $cierres[0][array_key_last($cierres)]->fec_cierre;
 			
-			$result = array_filter($cierres, function($a) {
-			return $a == $last_date;
-			}, ARRAY_FILTER_USE_KEY);
+			if($cierres != 0){
+				$last_date = $cierres[0][array_key_last($cierres)]->fec_cierre;
+
+				$result = array_filter($cierres, function($a) {
+				  return $a == $last_date;
+				}, ARRAY_FILTER_USE_KEY);
+
+			}else{
+				$result = $cierres;
+			}
 
 			foreach ($result as $cie){
 
@@ -217,15 +223,33 @@ class Admin_dashboard extends CI_Controller {
 					  } 
 					  if($arr['codigo'] == $key["codigo"]){
 
+						$caja_sal_ent = 0;
+						//salidas y entradas
+						foreach($ent_sal as $ent){
+	  
+							if($ent->cod_divisa == $key['codigo'] && $ent->tip_ent_sal == 'Entrada'){
+						  
+								$caja_sal_ent = $caja_sal_ent + $ent->can_ent_sal;
+								 
+							  }
+	
+							  if($ent->cod_divisa == $key['codigo'] && $ent->tip_ent_sal == 'Salida'){
+										
+								$caja_sal_ent = $caja_sal_ent - $ent->can_ent_sal; 
+							   
+							  }
+	
+						}
+
 						//formula calcular cotizacion
 						//cantidad_cierre_anterior * 100 / cantidad _total;
-						$porcentaje_compra_anterior = ($cie[$index]->can_cierre * 100) / ($key['caja'] + $arr['ventas']);
+						$porcentaje_compra_anterior = ($cie[$index]->can_cierre * 100) / ((($key['caja'] + $arr['ventas']) - $caja_sal_ent));
 						$peso_anterior = $porcentaje_compra_anterior * $cie[$index]->cot_cierre;
 						
 						$cotizacion = str_pad(round($arr['gastos_compra'] / $arr['compras'] , 4), 4);
-						$porcentaje_compra = ($arr['compras'] * 100) / ($key['caja'] + $arr['ventas']);
+						$porcentaje_compra = ($arr['compras'] * 100) /((($key['caja'] + $arr['ventas']) - $caja_sal_ent));
 						$peso = $cotizacion * $porcentaje_compra;
-
+						
 						$cot =  ($peso_anterior + $peso) / 100;
 
 					   
@@ -280,32 +304,60 @@ class Admin_dashboard extends CI_Controller {
 			  }
 
 			}
+
 			
 			if ($key['codigo'] == 'PEN' ) {
+			
 				$suma = $suma + $key['caja']; 
 			}
-			if ($key['codigo'] != 'PEN') {
+		
+			if ($key['codigo'] != 'PEN' ) {
+				
 				$suma = $suma + $key['caja'] * $cot; 
+			
 			}
 			
+					
 			//restamos las entradas a la caja para no sumarlo a la ganancia
 			foreach($ent_sal as $ent){
+				// echo $key['caja']. "- ".$cot. "-" .$suma . "-". $ent->can_ent_sal . "<br>";
 				if($ent->cod_divisa == $key['codigo'] && $ent->tip_ent_sal == 'Entrada'){
-					if ($ent->cod_divisa == 'PEN' ) {
+					
+					if ($ent->cod_divisa == 'PEN') {
 						$suma = $suma - $ent->can_ent_sal; 
 					}
 					if ($ent->cod_divisa != 'PEN') {
 						$suma = $suma - ($ent->can_ent_sal * $cot); 
+						
 					}
+					
 				}
+				
+				if($ent->cod_divisa == $key['codigo'] && $ent->tip_ent_sal == 'Salida'){
+				
+					if ($ent->cod_divisa == 'PEN' ) {
+						$suma = $suma + $ent->can_ent_sal; 
+						
+					}
+					if ($ent->cod_divisa != 'PEN') {
+						
+						$suma = $suma + ($ent->can_ent_sal * $cot); 
+						
+					}
+					
+				}
+				
 			}
 		}
+		
+
 		return $suma;
 
 	}
 
 	public function ganancia(){
 		$cierre = $this->get_cierre();
+		// echo $cierre . "<br>";
 		$reporte_dia = $this->get_reporte();
 		if ($cierre > $reporte_dia) {
 			$ganancia = $cierre - $reporte_dia;

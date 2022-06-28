@@ -208,7 +208,7 @@
                       if (aceptado){
                         
                         // //print
-                        printTicket(data);
+                        // printTicket(data);
           
                         swal("Guardando y Reportando...!", {
                           icon: "info",   
@@ -234,6 +234,7 @@
                           return res.json();
                         })
                         .then(async res => {
+                         
                           //consultamos el ultimo correlativo
                           // para asignarlo al nuevo
                           const queryCorrelativo = await fetch('Operaciones/check_operacion_id', {
@@ -244,17 +245,17 @@
                                                             body: JSON.stringify(res)
                                                           });
                           const latestCorrelativo = await queryCorrelativo.json();
-                          
+                                                     
                           //add correlativo actual
                           data.correlativo = Number(latestCorrelativo.correlative_sunat);
-
+                         
                           //print
                           printTicket(data);
           
                                                           
                           getToken(data)
                             .then(respuesta => {
-                              // console.log(respuesta)
+                              console.log(respuesta)
                               if(respuesta.sunatResponse.success){
                                 swal("Reportado correctamente a la Sunat!", {
                                   icon: "success",   
@@ -288,6 +289,7 @@
                               }
                             })
                             .catch(err => {
+                              
                               swal({
                                   title: "Ha ocurrido un problema con sunat!",
                                   text: "Se ha guardado en la BASE DE DATOS esta operación correctamente, pero no se ha reportado a sunat esta operacion, Debe volver a enviar desde reportes detallados",
@@ -385,8 +387,8 @@
             tipo = "Venta de ";
         }
 
-        console.log("data: ", data)
-        console.log(data.correlativo)
+        // console.log("data: ", data)
+        // console.log(data.correlativo)
      
         modal.innerHTML = `
         <div>
