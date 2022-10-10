@@ -114,7 +114,15 @@
                       <td><img style="width: 30px; height: 15px;" src="<?= base_url('assets/img/' . $key->mon_rec_operacion .'.png'); ?>"> <?= str_pad($key->rec_operacion, 4) . " " . $key->mon_rec_operacion; ?></td>
                       <td rowspan="2" style="
     vertical-align: inherit;
-"><button class="btn btn-warning" type="button" onclick="anular('<?= $key->id_operacion; ?>', '<?= $key->fec_operacion; ?>');" <?php echo ($key->status == 0) ? "disabled" : ""; ?> title="Anular"><i class="fa fa-exclamation" aria-hidden="true"></i></button></td>
+"><button class="btn btn-warning" type="button" onclick="anular(
+																													'<?= $key->id_operacion; ?>',
+																													'<?= $key->correlative_sunat; ?>',
+																													'<?= $key->fec_operacion; ?>',
+																													'<?= $key->mon_rec_operacion; ?>',
+																													'<?= str_pad($key->rec_operacion, 4) ?>',
+																													'<?= $key->doc_cliente; ?>',
+																													'<?= $key->n_cliente; ?>'
+																													);" <?php echo ($key->status == 0) ? "disabled" : ""; ?> title="Anular"><i class="fa fa-exclamation" aria-hidden="true"></i></button></td>
 
                       <?php if($key->report == 0 && $key->status == 1){ ?>
                         <td rowspan="2" style="vertical-align: inherit; cursor: pointer"><button class="btn" style="color: tomato;" type="button"
@@ -237,8 +245,7 @@
             })
          }
 
-         function anular(id, fecha){
-        
+         function anular(id, correlativo, fecha, mon_recibe, recibe, docCliente, numCliente){
                 swal({
                   title: "Seguro desea Anular?",
                   icon: "warning",
@@ -252,10 +259,10 @@
                           icon: "info",   
                           buttons: false, 
                         })
-                    sendBaja(id, fecha)
+                    sendBaja(id, correlativo, fecha, mon_recibe, recibe, docCliente, numCliente)
                       .then(res => res.json())   
                       .then(res => {
-                        console.log(res);
+                        // console.log(res);
                         if(res.sunatResponse.success){
                           
                            swal("Anulado con exito!", {

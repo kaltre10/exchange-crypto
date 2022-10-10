@@ -3,21 +3,30 @@ async function getToken(data){
     const query = await fetch('Boleta/get_token');
     const tokenData = await query.json();
 
+		//si se cambia de crypto a crypto se valor en PEN para efectos de SUNAT
+		const dataQuery = await getCotizacionDivisa(data.moneda_recibe);
+		if(data.moneda_recibe !== 'PEN' && data.moneda_recibe !== 'USD'){
+			data.moneda_recibe = 'PEN';
+			data.recibe = dataQuery * data.recibe;
+		}
+		
     let cantidad;
     let tipo;
-  
+		let tipoMoneda = data.moneda_recibe;
+		let dataMonto =  data.recibe;
+		
     if(data.tipo == 'COMPRA'){
-        tipo = `Compra de ${data.moneda}`;
+			tipo = `Compra de ${data.moneda} ${data.monto}`;
     }else{
-        tipo = `Venta de ${data.moneda}`;
+			tipo = `Venta de ${data.moneda} ${data.monto}`;
     }
-   
-    const montoText = numeroALetras(data.recibe);
+    const montoText = numeroALetras(dataMonto);
     const montoT = montoText.trim();
     const token = tokenData[0].token;
-  
-    data = { ...data, montoT, token, tipo };
-    // console.log(data)
+		
+    data = { ...data, montoT, token, tipo, tipoMoneda, dataMonto };
+		// console.log(data)
+    
     const configData = configJson(data);
 
     // console.log(configData);
@@ -97,14 +106,14 @@ function configJson(data){
         "ublVersion": "2.1",
         "tipoOperacion": "0101",
         "tipoDoc": "03",
-        "serie": "B001",
+        "serie": config.serieBoleta,
         "correlativo": data.correlativo,
         "fechaEmision": new Date("Y-m-dTH:i:s"),
         "formaPago": {
-          "moneda": data.moneda,
+          "moneda": data.tipoMoneda,
           "tipo": "Contado"
         },
-        "tipoMoneda": data.moneda_recibe,
+        "tipoMoneda": data.tipoMoneda,
         "client": {
           "tipoDoc": String(data.cliente[0]),
           "numDoc": Number(data.cliente[1]),
@@ -118,37 +127,37 @@ function configJson(data){
           }
         },
         "company": {
-          "ruc": 20609364212,
-          "razonSocial": "EWFOREX",
-          "nombreComercial": "EWFOREX",
+          "ruc": config.ruc,
+          "razonSocial": config.razonSocial,
+          "nombreComercial": config.nombreComercial,
           "address": {
-            "direccion": "Av del Ejército 768, Miraflores",
+            "direccion": config.direccion,
             "provincia": "LIMA",
             "departamento": "LIMA",
             "distrito": "LIMA",
             "ubigueo": "150101"
           }
         },
-        "mtoOperExoneradas": data.recibe,
+        "mtoOperExoneradas": data.dataMonto,
         "mtoIGV": 0,
-        "valorVenta": data.recibe,
+        "valorVenta": data.dataMonto,
         "totalImpuestos": 0,
-        "subTotal": data.recibe,
-        "mtoImpVenta": data.recibe,
+        "subTotal": data.dataMonto,
+        "mtoImpVenta": data.dataMonto,
         "details": [
           {
             "codProducto": "P001",
             "unidad": "NIU",
             "descripcion": data.tipo,
-            "cantidad": data.monto,
-            "mtoValorUnitario": data.cotizacion,
-            "mtoValorVenta": data.recibe,
-            "mtoBaseIgv": data.recibe,
+            "cantidad": 1,
+            "mtoValorUnitario": data.dataMonto,
+            "mtoValorVenta": data.dataMonto,
+            "mtoBaseIgv": data.dataMonto,
             "porcentajeIgv": 0,
             "igv": 0,
             "tipAfeIgv": 20,
             "totalImpuestos": 0,
-            "mtoPrecioUnitario": data.cotizacion
+            "mtoPrecioUnitario": data.dataMonto
           }
         ],
         "legends": [
@@ -174,7 +183,7 @@ function fetchApi(data, token){
 }
 
 function fetcBaja(data, token){
-  return fetch('https://facturacion.apisperu.com/api/v1/voided/send', {
+  return fetch('https://facturacion.apisperu.com/api/v1/summary/send', {
       method: 'POST',
       headers: {
       'Content-Type': 'application/json',
@@ -184,41 +193,79 @@ function fetcBaja(data, token){
   })
 }
 
-async function sendBaja(id, fecha){
+async function sendBaja(id, correlativo, fecha, mon_recibe, recibe, docCliente, numCliente){
 
   const query = await fetch('Boleta/get_token');
   const tokenData = await query.json();
   const token = tokenData[0].token;
-
   let date = new Date(fecha);
   let fechaBoleta = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}T00:00:00-22:00`;
-  
-  const JSONBaja = {
-    "correlativo": id,
-    "fecGeneracion": fechaBoleta,
-    "fecComunicacion": fechaBoleta,
-    "company": {
-      "ruc": 20609364212,
-      "razonSocial": "EWFOREX",
-      "nombreComercial": "EWFOREX",
-      "address": {
-        "direccion": "Av del Ejército 768, Miraflores",
-        "provincia": "LIMA",
-        "departamento": "LIMA",
-        "distrito": "LIMA",
-        "ubigueo": "150101"
-      }
-    },
-    "details": [
-      {
-        "tipoDoc": "01",
-        "serie": "F001",
-        "correlativo": id,
-        "desMotivoBaja": "ANULADO"
-      },
-    ]
-  }
+	
+	//si se cambia de crypto a crypto se valor en PEN para efectos de SUNAT
+	const dataQuery = await getCotizacionDivisa(mon_recibe);
+	if(mon_recibe !== 'PEN' && mon_recibe !== 'USD'){
+		mon_recibe = 'PEN';
+		recibe = dataQuery * recibe;
+	}
 
+	//data cliente
+	if(docCliente === ''){
+		docCliente = 0;
+	}else{
+		switch(docCliente){
+			case "DNI":
+					docCliente = 1;
+					break;
+			case "CE":
+					docCliente = 4;
+					break;
+			case "RUC":
+					docCliente = 6;
+					break;
+			case "PAS":
+					docCliente = 7;
+					break;
+		}
+	
+	}
+	
+	let tipoMoneda = mon_recibe;
+	let dataMonto =  recibe;
+
+  const JSONBaja = {
+		"fecGeneracion": fechaBoleta,
+		"fecResumen": fechaBoleta,
+		"correlativo": correlativo,
+		"moneda": tipoMoneda,
+		"company": {
+			"ruc": config.ruc,
+			"razonSocial": config.razonSocial,
+			"nombreComercial": config.nombreComercial,
+			"address": {
+				"direccion": config.direccion,
+				"provincia": "LIMA",
+				"departamento": "LIMA",
+				"distrito": "LIMA",
+				"ubigueo": "150101"
+			}
+		},
+		"details": [
+			{
+				"tipoDoc": "03",
+				"serieNro": `${config.serieBoleta}-${correlativo}`,
+				"estado": "3",
+				"clienteTipo": String(docCliente),
+				"clienteNro": String(numCliente),
+				"total": parseFloat(dataMonto),
+				"mtoOperGravadas": 0,
+				"mtoOperInafectas": 0,
+				"mtoOperExoneradas": 0,
+				"mtoOperExportacion": 0,
+				"mtoOtrosCargos": 0,
+				"mtoIGV": 0
+			}
+		]
+  }
   return fetcBaja(JSONBaja, token);
 }
 
@@ -266,16 +313,25 @@ async function configJsonPdf(data){
     data.cliente[2] = customer[0].nom_cliente;
   }
 
-  // console.log(data, token);
+	//si se cambia de crypto a crypto se valor en PEN para efectos de SUNAT
+	const dataQuery = await getCotizacionDivisa(data.mon_rec_operacion);
+	if(data.mon_rec_operacion !== 'PEN' && data.mon_rec_operacion !== 'USD'){
+		data.mon_rec_operacion = 'PEN';
+		data.rec_operacion = dataQuery * data.rec_operacion;
+	}
 
+  // console.log(data, token);
+	let tipoMoneda = data.mon_rec_operacion;
+	let dataMonto =  data.rec_operacion;
   let tipo;
+
   if(data.tip_operacion == 'COMPRA'){
-    tipo = `Compra de ${data.div_operacion}`;
+    tipo = `Compra de ${data.div_operacion} ${data.mon_operacion}`;
   }else{
-    tipo = `Venta de ${data.div_operacion}`;
+    tipo = `Venta de ${data.div_operacion} ${data.mon_operacion}`;
   }
   
-  const montoText = numeroALetras(data.rec_operacion);
+  const montoText = numeroALetras(dataMonto);
   const montoT = montoText.trim();
 
   //ajuste fecha y hora
@@ -293,18 +349,18 @@ async function configJsonPdf(data){
     "ublVersion": "2.1",
     "tipoOperacion": "0101",
     "tipoDoc": "03",
-    "serie": "B001",
+    "serie": config.serieBoleta,
     "correlativo": data.correlative_sunat,
     "fechaEmision": `${year}-${mes}-${dia}T${hora}:${minutos}:${segundos}-05:00`,
     "formaPago": {
-      "moneda": data.div_operacion,
+      "moneda": tipoMoneda,
       "tipo": "Contado"
     },
-    "tipoMoneda": data.mon_rec_operacion,
+    "tipoMoneda": tipoMoneda,
     "client": {
-      "tipoDoc": data.cliente[0],
-      "numDoc": data.cliente[1],
-      "rznSocial": data.cliente[2],
+      "tipoDoc": String(data.cliente[0]),
+      "numDoc": Number(data.cliente[1]),
+      "rznSocial": String(data.cliente[2]),
       "address": {
         "direccion": "LIMA",
         "provincia": "LIMA",
@@ -314,37 +370,37 @@ async function configJsonPdf(data){
       }
     },
     "company": {
-      "ruc": 20609364212,
-      "razonSocial": "EWFOREX",
-      "nombreComercial": "EWFOREX",
-      "address": {
-        "direccion": "Av del Ejército 768, Miraflores",
+      "ruc": config.ruc,
+				"razonSocial": config.razonSocial,
+				"nombreComercial": config.nombreComercial,
+				"address": {
+					"direccion": config.direccion,
         "provincia": "LIMA",
         "departamento": "LIMA",
         "distrito": "LIMA",
         "ubigueo": "150101"
       }
     },
-    "mtoOperExoneradas": data.rec_operacion,
+    "mtoOperExoneradas": 0,
     "mtoIGV": 0,
-    "valorVenta": data.rec_operacion,
+    "valorVenta": dataMonto,
     "totalImpuestos": 0,
-    "subTotal": data.rec_operacion,
-    "mtoImpVenta": data.rec_operacion,
+    "subTotal": dataMonto,
+    "mtoImpVenta": dataMonto,
     "details": [
       {
         "codProducto": "P001",
         "unidad": "NIU",
         "descripcion": tipo,
-        "cantidad": data.mon_operacion,
-        "mtoValorUnitario": data.cot_operacion,
-        "mtoValorVenta": data.rec_operacion,
-        "mtoBaseIgv": data.rec_operacion,
+        "cantidad": 1,
+        "mtoValorUnitario": dataMonto,
+        "mtoValorVenta": dataMonto,
+        "mtoBaseIgv": 0,
         "porcentajeIgv": 0,
         "igv": 0,
-        "tipAfeIgv": 20,
+        "tipAfeIgv": 0,
         "totalImpuestos": 0,
-        "mtoPrecioUnitario": data.cot_operacion
+        "mtoPrecioUnitario": dataMonto
       }
     ],
     "legends": [
@@ -376,4 +432,21 @@ function formatDate(dateOperation){
   let fechaBoleta = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}T${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`;
 
   return fechaBoleta;
+}
+
+//Obtener cotizacion si es de crypto a crypto para reportar valor en PEN
+const getCotizacionDivisa = async (divisa) => {
+	const query = await fetch('Operaciones/get_divisas');
+	const dataDivisas = await query.json();
+	const cotizacion = dataDivisas.filter(d => d.cod_divisa === divisa)[0];
+	return cotizacion.com_divisa;
+}
+
+const config = {
+	ruc: 10012345678,
+	razonSocial: "CARDENAS RAMOS MARI LUZ TRIGIDIA",
+  nombreComercial: "El Fiel Test",
+  direccion: "Avenida Tomás Marsano 2819 - Urbanización Higuereta. Santiago de Surco, Lima.",
+	telefono: "000 000 000",
+	serieBoleta: 'B001'
 }

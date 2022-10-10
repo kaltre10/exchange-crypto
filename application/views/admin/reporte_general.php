@@ -107,7 +107,7 @@
                     <tr>
                       <td><img style="width: 30px; height: 15px;" src="<?= base_url('assets/img/' . $key['codigo'] .'.png'); ?>"> <?= $key['codigo']; ?> </td>
                       <td><?= $key['nombre']; ?></td>
-                      <td><?= str_pad($key['caja'], 4); ?></td>
+                      <td><?= sprintf('%.8f', floatval($key['caja'])); ?></td>
                       <?php
                       //asignamos primero la cotizacion registrada en el sistema
 				              $cot = $key['cotizacion'];

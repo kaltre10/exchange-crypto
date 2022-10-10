@@ -28,6 +28,14 @@
 			$query = $this->db->get_where('cierre', array('fec_cierre' => $fecha));
 			return $query->result();
 		}
+
+		public function get_date($desde, $hasta) {
+			$this->db->select('*');
+			$this->db->from('ganancia');
+			$sql = $this->db->where("fec_ganancia BETWEEN '$desde' AND '$hasta'");
+			$query = $this->db->get();
+			return $query->result();
+		}
 		
 	}
 

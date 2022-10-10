@@ -77,7 +77,7 @@ function cot(str) {
 		tipo = "Venta";
 	}
 	let tipo_cambio = document.getElementById('cotizacion');
-	tipo_cambio.value = tipo;
+	tipo_cambio.value = tipo;getdivisas
 	getdivisas();
 
 }
@@ -214,3 +214,18 @@ function getrecibe() {
       xhttp.send(); 
       return(window.cot_moneda_recibe);
 }
+
+recibe.addEventListener('keyup', () => {
+	let monto = document.getElementById("monto").value;
+	cotizacion.value = recibe.value / monto;
+	document.getElementById('mostrar_resultado').innerHTML = recibe.value;
+	//titulo resultado
+	let tipo = tip_ope();
+	if (tipo == "COMPRA") {
+		document.getElementById('titulo_resultado').innerHTML = "Cliente Recibe:";
+		document.getElementById('rec').innerHTML = "Recibe";
+	}else{
+		document.getElementById('titulo_resultado').innerHTML = "Cliente Paga:";
+		document.getElementById('rec').innerHTML = "Paga";
+	}
+});

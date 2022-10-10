@@ -23,6 +23,7 @@
 
   <link rel="stylesheet" type="text/css" href='<?= base_url("assets/select2-4.0.13/dist/css/select2.min.css"); ?>'/>
   <link rel="stylesheet" type="text/css" href='<?= base_url("assets/css/print.css"); ?>'/>
+  <link rel="stylesheet" type="text/css" href='<?= base_url("assets/css/index.css"); ?>'/>
 
   <style>
     .select2-container--default .select2-selection--single .select2-selection__rendered{
@@ -32,7 +33,8 @@
         font-size: 1rem;
         font-weight: 400;
         line-height: 1.5;
-        color: #6e707e;
+        /* color: #6e707e; */
+				color: #212121 !important;
         background-color: #fff;
         background-clip: padding-box;
         border: 1px solid #d1d3e2;

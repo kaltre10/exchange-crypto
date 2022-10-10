@@ -20,7 +20,7 @@
           <div class="form-row">
             <div class="form-group col-12 col-md-6">
               <label class="col-form-label">Codigo: (3 letras Mayúscula)</label>
-              <input type="text" pattern="[A-Z]+" maxlength="3" class="form-control" name="cod_divisa" autocomplete="off" required>
+              <input type="text" pattern="[A-Z]+" maxlength="25" class="form-control" name="cod_divisa" autocomplete="off" required>
             </div>
             <div class="form-group col-12 col-md-6">
               <label class="col-form-label">Nombre: (letras)</label>

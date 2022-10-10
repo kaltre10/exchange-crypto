@@ -16,14 +16,102 @@ class Utilidad extends CI_Controller {
 
 		$gastos = $this->gastos();
 
+		if ($this->input->post('desde') /*&& $this->input->post('hasta')*/) {
+			$desde = $this->input->post('desde') . " 00:00:00";//ajustando la fecha para que tome todo el dia
+			$hasta = $this->input->post('hasta') . " 23:59:59";//ajustando la fecha para que tome todo el dia
+		}else{
+			$desde = date("Y-m-d") . " 00:00:00";//ajustando la fecha para que tome todo el dia
+			$hasta = date("Y-m-d") . " 23:59:59";//ajustando la fecha para que tome todo el dia
+		}
+
+		$desdeDays = date("Y-m-d",strtotime($desde."+" . '0' . "days")). " 00:00:00";
+		$hastaDays = date("Y-m-d",strtotime($desdeDays."+" . '0' . "days")). " 23:59:59";
+		$arrayDays = [];
+		$gananciaTotal = $this->ganancia_model->get_date(date("Y-m-d",strtotime($desde)), date("Y-m-d",strtotime($hasta)));
+		$ent_salTotal = $this->ent_sal_model->getall($desde, $hasta);
+		// $arrayFechas = [];
+		
+		for($i = 0; strtotime($desdeDays) <= strtotime($hasta); $i++){
+			
+			$ent_salData = $this->ent_sal_model->getall($desdeDays, $hastaDays);
+			$ganancias = $this->ganancia_model->get_date(date("Y-m-d",strtotime($desdeDays)), date("Y-m-d",strtotime($hastaDays)));
+			// $operacionesData = $this->operaciones_model->getall($desdeDays, $hastaDays);
+			// $gastos = gastos_operaciones($desdeDays, $hastaDays);
+			
+			$f = 0;
+			
+			foreach ($gananciaTotal as $g){
+				
+				
+
+				$check = false;
+				foreach($arrayDays as $a){
+					
+					if($a['fecha'] == $g->fec_ganancia){
+						$check = true;
+					}
+				}
+
+				if(!$check){
+
+					$suma_gasto = 0;
+					foreach ($ent_salTotal as $row){
+
+						// echo date("Y-m-d",strtotime($g->fec_ganancia)) . " // ";
+						// echo date("Y-m-d",strtotime($row->fec_ent_sal)). "<br>";
+						
+						if($row->tip_ent_sal != 'Salida'){
+							continue;
+						}
+						
+						
+						
+						
+
+						if(
+							date("Y-m-d",strtotime($g->fec_ganancia)) == 
+							date("Y-m-d",strtotime($row->fec_ent_sal))
+							
+							){
+
+								// echo $row->can_ent_sal . "-" . $row->tip_ent_sal  . "-" . $row->cod_divisa . "-"  . $g->fec_ganancia . "<br>";
+
+							if($row->cod_divisa != 'PEN'){
+								$row->can_ent_sal = $row->can_ent_sal * $row->com_divisa;
+								
+							}
+							
+								
+							$suma_gasto = $suma_gasto + $row->can_ent_sal;
+							
+						}
+						
+					}
+					
+					$dataPush = array(
+						//'tipo' => $row->tip_ent_sal,
+						'gasto' => $suma_gasto,
+						'ganancia' => $g->can_ganancia,
+						'fecha' => $g->fec_ganancia,
+					);
+					array_push($arrayDays, $dataPush);
+				}
+				
+				$f++;
+			}
+			$desdeDays = date("Y-m-d",strtotime($desdeDays."+" . '1' . "days")). " 00:00:00"; 
+			$hastaDays = date("Y-m-d",strtotime($desdeDays."+" . '0' . "days")). " 23:59:59";
+			
+		}
+		
 			$data = array(
 				'header' => $this->load->view('admin/header','',TRUE),
 				'footer' => $this->load->view('admin/footer','',TRUE),
 				'gastos' => $gastos['suma_gastos'], //LLAMAMOS AL METODO
 				'ganancia' => $this->ganancia(),
 				'nav' => $this->load->view('admin/nav','',TRUE),
+				'dataDays' => $arrayDays
 			);
-
 			$this->load->view('admin/utilidad', $data);
 		}else{
 			redirect(base_url('login'));

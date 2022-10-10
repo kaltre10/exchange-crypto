@@ -1,0 +1,53 @@
+body{
+	background-color: #1e1e1e !important;
+	color: white;
+}
+
+.card{
+	background-color: #242424 !important;
+	border-radius: 25px;
+}
+
+.form-control{
+	background-color: #212121;
+	border-radius: 10px;
+	color: white;
+}
+
+.form-control:focus{
+	background-color: #212121;
+	color: white;
+}
+
+#content-wrapper{
+	background-color: #212121 !important;
+}
+
+.bg-white{
+	background-color: #212121 !important;
+}
+
+.card-header:first-child{
+	background-color: #212121;
+	color: white;
+}
+
+.bg-gradient-primary{
+	background-color: #1e1e1e !important;
+}
+
+.modal-content{
+	background-color: #212121;
+}
+
+.close{
+	color: white !important;
+}
+
+.select2-container--default .select2-results>.select2-results__options{
+	color: #212121;
+}
+
+.sidebar .nav-item .collapse .collapse-inner .collapse-item, .sidebar .nav-item .collapsing .collapse-inner .collapse-item{
+	color: #6b6b6b;
+}

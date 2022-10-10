@@ -96,7 +96,7 @@
                       </div>
                       <div class="col-12 col-md-3 mb-3">
                         <label id="rec">Recibe</label>
-                        <input id="recibe" name="rec_operacion" type="numbre" class="form-control" readonly="readonly" required>
+                        <input id="recibe" name="rec_operacion" type="numbre" class="form-control" required>
                       </div>
                       <div class="col-12 col-md-3 mb-3">
                         <label class="mr-2">Moneda</label>
@@ -180,7 +180,7 @@
 
           let cliente = clienteArray.map( c => c.trim());
 
-          let clienteID = selectCliente.value;
+          let clienteID = selectCliente.value;					
 
           var data = {monto, cotizacion, recibe, tipo, moneda, moneda_recibe, cliente, clienteID}
          
@@ -223,7 +223,7 @@
                         // .then(lastOperation => lastOperation.json())
                         // .then(lastOperation => console.log(lastOperation))
                         .then(res => {
-
+													
                           document.getElementById('monto').value = 0;
                           document.getElementById('recibe').value = 0;
                           document.getElementById('mostrar_resultado').textContent = 0;
@@ -232,7 +232,7 @@
                           return res.json();
                         })
                         .then(async res => {
-                         
+													
                           //consultamos el ultimo correlativo
                           // para asignarlo al nuevo
                           const queryCorrelativo = await fetch('Operaciones/check_operacion_id', {
@@ -248,11 +248,11 @@
                           data.correlativo = Number(latestCorrelativo.correlative_sunat);
                          
                           //print
-                          // printTicket(data);
+                          printTicket(data);
                                                           
                           getToken(data)
                             .then(respuesta => {
-                              // console.log(respuesta)
+                             
                               if(respuesta.sunatResponse.success){
                                 swal("Reportado correctamente a la Sunat!", {
                                   icon: "success",   
@@ -286,7 +286,7 @@
                               }
                             })
                             .catch(err => {
-                              
+                            
                               swal({
                                   title: "Ha ocurrido un problema con sunat!",
                                   text: "Se ha guardado en la BASE DE DATOS esta operación correctamente, pero no se ha reportado a sunat esta operacion, Debe volver a enviar desde reportes detallados",
@@ -390,20 +390,20 @@
         modal.innerHTML = `
         <div>
           <div>
-            Casa de Cambios ewforex.net</br>
-            Av del Ejército 768, Miraflores
+            Casa de Cambios ${config.nombreComercial}</br>
+            ${config.direccion}
           <span class="separador">
-            <span>Telf: </span><span class="left"> 955 269 142</span>
+            <span>Telf: </span><span class="left"> ${config.telefono}</span>
           </span>
           <span class="separador">
-          <span>RUC: </span><span class="left"> 20609364212</span>
+          <span>RUC: </span><span class="left"> ${config.ruc}</span>
           </span>
           -------------------------------------</br>
           BOLETA DE VENTA ELECTRÓNICA</br>
           -------------------------------------</br></div>
           <div class="left">
             <span>Fecha: </span><span>${fechaBoleta}</span></br>
-            <span>Ticket n: </span><span> B001-${String(data.correlativo)}</span></br>
+            <span>Ticket n: </span><span> ${config.serieBoleta}-${String(data.correlativo)}</span></br>
             <span>Nombre: </span><span>${String(data.cliente[2])}</span></br>
             <span>DOC: </span><span>${String(data.cliente[0])} ${String(data.cliente[1])}</span></br>
             <span>Dirección: </span><span>LIMA</span></br>
@@ -433,6 +433,7 @@
         window.print();
         modal.remove();
       }
+
       </script>
 
       <!-- End of Main Content -->

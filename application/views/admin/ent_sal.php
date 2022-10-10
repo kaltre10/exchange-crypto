@@ -170,7 +170,7 @@
                       <td><?= $key->fec_ent_sal; ?></td>
                       <td><?= $key->nom_usuario; ?></td>
                       <td><?= $key->tip_ent_sal; ?></td>
-                      <td><?= number_format($key->can_ent_sal, 2); ?></td>
+                      <td><?= str_pad($key->can_ent_sal, 8); ?></td>
                       <td><img style="width: 30px; height: 15px;" src="<?= base_url('assets/img/' . $key->cod_divisa .'.png'); ?>"> <?= $key->cod_divisa; ?></td>
                       <td><?= $key->nom_categoria; ?></td>
                       <td><?= $key->des_ent_sal; ?></td>
