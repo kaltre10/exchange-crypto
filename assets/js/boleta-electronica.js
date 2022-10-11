@@ -4,13 +4,12 @@ async function getToken(data){
     const tokenData = await query.json();
 
 		//si se cambia de crypto a crypto se valor en PEN para efectos de SUNAT
-		const dataQuery = await getCotizacionDivisa(data.moneda_recibe);
+		const dataQuery = await getCotizacionDivisaCrypto(data.moneda_recibe);
 		if(data.moneda_recibe !== 'PEN' && data.moneda_recibe !== 'USD'){
 			data.moneda_recibe = 'PEN';
 			data.recibe = dataQuery * data.recibe;
 		}
 		
-    let cantidad;
     let tipo;
 		let tipoMoneda = data.moneda_recibe;
 		let dataMonto =  data.recibe;
@@ -20,7 +19,7 @@ async function getToken(data){
     }else{
 			tipo = `Venta de ${data.moneda} ${data.monto}`;
     }
-    const montoText = numeroALetras(dataMonto);
+    const montoText = numeroALetras(dataMonto,  data.moneda_recibe);
     const montoT = montoText.trim();
     const token = tokenData[0].token;
 		
@@ -202,7 +201,7 @@ async function sendBaja(id, correlativo, fecha, mon_recibe, recibe, docCliente, 
   let fechaBoleta = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}T00:00:00-22:00`;
 	
 	//si se cambia de crypto a crypto se valor en PEN para efectos de SUNAT
-	const dataQuery = await getCotizacionDivisa(mon_recibe);
+	const dataQuery = await getCotizacionDivisaCrypto(mon_recibe);
 	if(mon_recibe !== 'PEN' && mon_recibe !== 'USD'){
 		mon_recibe = 'PEN';
 		recibe = dataQuery * recibe;
@@ -314,7 +313,7 @@ async function configJsonPdf(data){
   }
 
 	//si se cambia de crypto a crypto se valor en PEN para efectos de SUNAT
-	const dataQuery = await getCotizacionDivisa(data.mon_rec_operacion);
+	const dataQuery = await getCotizacionDivisaCrypto(data.mon_rec_operacion);
 	if(data.mon_rec_operacion !== 'PEN' && data.mon_rec_operacion !== 'USD'){
 		data.mon_rec_operacion = 'PEN';
 		data.rec_operacion = dataQuery * data.rec_operacion;
@@ -331,7 +330,7 @@ async function configJsonPdf(data){
     tipo = `Venta de ${data.div_operacion} ${data.mon_operacion}`;
   }
   
-  const montoText = numeroALetras(dataMonto);
+  const montoText = numeroALetras(dataMonto, data.mon_rec_operacion);
   const montoT = montoText.trim();
 
   //ajuste fecha y hora
@@ -434,8 +433,8 @@ function formatDate(dateOperation){
   return fechaBoleta;
 }
 
-//Obtener cotizacion si es de crypto a crypto para reportar valor en PEN
-const getCotizacionDivisa = async (divisa) => {
+//Obtener divisas para calcular el equivalente en usd mayor a 5000
+const getCotizacionDivisaCrypto = async (divisa) => {
 	const query = await fetch('Operaciones/get_divisas');
 	const dataDivisas = await query.json();
 	const cotizacion = dataDivisas.filter(d => d.cod_divisa === divisa)[0];

@@ -12,6 +12,80 @@
       <!-- Main Content -->
       <div id="content">
 
+			<!-- Modal -->
+			<form id="form-ticket">
+				<div class="modal fade" id="myModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+					<div class="modal-dialog">
+						<div class="modal-content">
+							<div class="modal-header">
+								<h5 class="modal-title" id="exampleModalLabel">Datos del Cliente</h5>
+								<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+									<span aria-hidden="true">&times;</span>
+								</button>
+							</div>
+							<div class="modal-body">
+							<div class="form-row">
+									<div class="form-group">
+										<label class="col-form-label">Persona a Favor:</label>
+										<select id="favor" class="form-control" name="favor_cliente" onchange="handleSelect()" required>
+											<option value="001" selected>De si mismo</option>
+											<option value="002">Persona Natural</option>
+											<option value="003">Ente Juridico / Domiciliado en Peru</option>
+											<option value="004">Ente Juridico / No domiciliado en Peru</option>
+										</select>
+									</div>
+							</div>
+							<div class="form-row">
+									<div class="form-group col-12">
+										<label class="col-form-label">*Ejecutante:</label>
+										<input id="ejecutante" type="text" class="form-control col-12" placeholder="Ejecutante" name="ejecutante" readonly>
+									</div>
+							</div>
+							<div class="form-row">
+								<div class="form-group col-12">
+										<label class="col-form-label">*Origen de Fondos:</label>
+										<select id="origen" class="form-control" name="origen" required>
+											<option value="001">Ahorros</option>
+											<option value="002">Alquiler de Bienes Muebles</option>
+											<option value="003">Alquiler de Bienes Inmuebles</option>
+											<option value="004">Donacion/Sorteo</option>
+											<option value="005">Ingreso por Trabajo Independiente</option>
+											<option value="006">Ingreso por Trabajo Dependiente</option>
+											<option value="007">Ingresos por regalia</option>
+											<option value="008">Prestamos</option>
+											<option value="009">Venta de Bien Mueble</option>
+											<option value="010">Venta de Bien Inmueble</option>
+											<option value="099" selected>Otros</option>
+										</select>
+									</div>
+								</div>
+							</div>
+							
+							<hr>
+
+							<div class="form-row" id="show-ejecutante" style="display: none">
+									<div class="form-group pl-4">
+										<label class="col-form-label">Beneficiario:</label>
+											<select id="beneficiario" name="beneficiario" class="custom-select select2-clientes selection-clientes col-12">
+											<option value=""> -- </option>
+											<?php foreach ($clientes as $key) : ?>
+											<option value="<?= $key->id_cliente; ?>"><?php echo $key->doc_cliente . " - " . $key->n_cliente . "-" . $key->nom_cliente; ?></option>
+											<?php endforeach; ?>
+										</select>
+									</div>
+							</div>
+					
+						
+
+							<div class="modal-footer">
+								<button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+								<button id="btn-click" type="button" class="btn btn-primary">Continuar</button>
+							</div>
+						</div>
+					</div>
+				</div>
+				</form>
+
         <!-- Topbar -->
         <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
 
@@ -160,7 +234,7 @@
 
       <script>
 
-        function guardar(){
+	function guardar(){
           let monto = document.getElementById('monto').value;
           monto = parseFloat(monto);
           let cotizacion = document.getElementById('cotizacion').value;
@@ -175,140 +249,60 @@
           let selectCliente = document.getElementById('cliente');
     
           let clienteText = selectCliente.options[selectCliente.selectedIndex].text;
-
           const clienteArray = clienteText.split("-");
 
           let cliente = clienteArray.map( c => c.trim());
 
-          let clienteID = selectCliente.value;					
+          let clienteID = selectCliente.value;
 
           var data = {monto, cotizacion, recibe, tipo, moneda, moneda_recibe, cliente, clienteID}
-         
-              $("#guardar").on('submit', function(evt){
-              evt.preventDefault(); 
+			
+					$("#guardar").on('submit', function(evt){
+            evt.preventDefault(); 
 
-              if(monto <= 0 || cotizacion <= 0 || recibe <= 0) {
-                    swal({
-                      title: "Error en los Datos",
-                      icon: "error",
-                      buttons: true,
-                      dangerMode: true,
-                    })
-                }else{
-
-                  let form = evt.target; 
-                    swal({
-                      title: "Registrar?",
-                      icon: "warning",
-                      buttons: true,
-                      dangerMode: true,
-                    })
-                    .then((aceptado) => {
-                      //VERIFICANDO LOS DATOS ENVIADOS
-                      if (aceptado){
-                      
-          
-                        swal("Guardando y Reportando...!", {
-                          icon: "info",   
-                          buttons: false, 
-                        })
-              
-                        fetch('Operaciones/save_operacion', {
-                          method: 'POST',
-                          headers: {
-                          'Content-Type': 'application/json',
-                          },
-                          body: JSON.stringify(data)
-                        })
-                        // .then(lastOperation => lastOperation.json())
-                        // .then(lastOperation => console.log(lastOperation))
-                        .then(res => {
-													
-                          document.getElementById('monto').value = 0;
-                          document.getElementById('recibe').value = 0;
-                          document.getElementById('mostrar_resultado').textContent = 0;
-                          // document.getElementById('cliente').option = 0;
-
-                          return res.json();
-                        })
-                        .then(async res => {
-													
-                          //consultamos el ultimo correlativo
-                          // para asignarlo al nuevo
-                          const queryCorrelativo = await fetch('Operaciones/check_operacion_id', {
-                                                            method: 'POST',
-                                                            headers: {
-                                                            'Content-Type': 'application/json',
-                                                            },
-                                                            body: JSON.stringify(res)
-                                                          });
-                          const latestCorrelativo = await queryCorrelativo.json();
-                                                     
-                          //add correlativo actual
-                          data.correlativo = Number(latestCorrelativo.correlative_sunat);
-                         
-                          //print
-                          printTicket(data);
-                                                          
-                          getToken(data)
-                            .then(respuesta => {
-                             
-                              if(respuesta.sunatResponse.success){
-                                swal("Reportado correctamente a la Sunat!", {
-                                  icon: "success",   
-                                  buttons: {
-                                    defeat: "ok",
-                                  }, 
-                                })
-      
-                                //actualizar report de la operacion
-                                fetch('Operaciones/update_operacion', {
-                                    method: 'POST',
-                                    headers: {
-                                    'Content-Type': 'application/json',
-                                    },
-                                  body: JSON.stringify(res)
-                                });
-                                
-
-                              }else{
-
-                                swal({
-                                  title: "Ha ocurrido un problema con sunat!",
-                                  text: "Debe volver a enviar desde reportes detallados",
-                                  icon: "warning",   
-                                  buttons: {
-                                    defeat: "ok",
-                                  }, 
-                                })
+            if(monto <= 0 || cotizacion <= 0 || recibe <= 0) {
+              swal({
+                title: "Error en los Datos",
+                icon: "error",
+                buttons: true,
+                dangerMode: true,
+              })
+              return;
+            }
+						
+						//verificar monto mayor a 5000
+						checkAmount(monto, moneda)
+						.then(res => {
+							if(res){
+								if(!clienteArray[1]){
+									swal({
+												title: "Cantidad mayor a 5000 USD requiere ejecutante",
+												icon: "warning",
+												buttons: true,
+												dangerMode: true,
+											});
+								}else{
+									document.getElementById('ejecutante').value = `${clienteArray[0]} - ${clienteArray[1]} - ${clienteArray[2]}`;
+									data.checkAmount = true;
+                  document.getElementById('btn-click').addEventListener('click', () => handleOperations(evt, monto, cotizacion, recibe, data))
 
 
-                              }
-                            })
-                            .catch(err => {
-                            
-                              swal({
-                                  title: "Ha ocurrido un problema con sunat!",
-                                  text: "Se ha guardado en la BASE DE DATOS esta operación correctamente, pero no se ha reportado a sunat esta operacion, Debe volver a enviar desde reportes detallados",
-                                  icon: "warning",   
-                                  buttons: {
-                                    defeat: "ok",
-                                  }, 
-                                })
-                            })
-                        })
+									$('#myModal').modal()
 
-                      }
 
-                    })
-
-                }
+								}
+							}else{
+								data.checkAmount = false;
+								handleOperations(evt, monto, cotizacion, recibe, data);
+							}
+							
+						}) 
      
-            });
-        }
+          });
+       }
 
-      async function printTicket(data){
-
+			 async function printTicket(data){
+				
         const div = document.getElementById('print');
         const modal = document.createElement('div');
         modal.classList.add('modal_print');
@@ -321,11 +315,10 @@
           data.cliente = ["REGULAR"];
         }
 
-        if(!data.cliente && data.clienteID != 0){
-          
+        if(data.clienteID != 0){
           data.cliente = [];
 
-          fetch('Clientes/get_cliente_id', {
+          await fetch('Clientes/get_cliente_id', {
               method: 'POST',
               headers: {
               'Content-Type': 'application/json',
@@ -334,6 +327,7 @@
             })
           .then(res => res.json())
           .then(res => {
+						
             switch(res[0].doc_cliente){
               case "DNI":
                   data.cliente[0] = "DNI";
@@ -351,10 +345,13 @@
 
             data.cliente[1] = res[0].n_cliente;
             data.cliente[2] = res[0].nom_cliente;
-          
+            data.cliente[3] = res[0].pais_cliente;
+            data.cliente[4] = res[0].ocu_cliente;
+            data.cliente[5] = res[0].po_cliente;
+						
           })
         } 
-
+				
         if(data.cliente.length === 1){
             data.cliente[0] = "N/";
             data.cliente[1] = "N/";
@@ -376,7 +373,7 @@
                   break;
             }
         }
-
+				
         //tipo
         if(data.tipo == 'COMPRA'){
             tipo = "Compra de ";
@@ -385,55 +382,314 @@
         }
 
         // console.log("data: ", data)
-        // console.log(data.correlativo)
-     
-        modal.innerHTML = `
-        <div>
-          <div>
-            Casa de Cambios ${config.nombreComercial}</br>
-            ${config.direccion}
-          <span class="separador">
-            <span>Telf: </span><span class="left"> ${config.telefono}</span>
-          </span>
-          <span class="separador">
-          <span>RUC: </span><span class="left"> ${config.ruc}</span>
-          </span>
-          -------------------------------------</br>
-          BOLETA DE VENTA ELECTRÓNICA</br>
-          -------------------------------------</br></div>
-          <div class="left">
-            <span>Fecha: </span><span>${fechaBoleta}</span></br>
-            <span>Ticket n: </span><span> ${config.serieBoleta}-${String(data.correlativo)}</span></br>
-            <span>Nombre: </span><span>${String(data.cliente[2])}</span></br>
-            <span>DOC: </span><span>${String(data.cliente[0])} ${String(data.cliente[1])}</span></br>
-            <span>Dirección: </span><span>LIMA</span></br>
-            <span>Operación: </span><span>${tipo} ${data.moneda}</span></br>
-          </div>
-          -------------------------------------
-          <div class="left">
-            <span>Monto:</span><span> ${data.monto} ${data.moneda}</span></br>                   
-            <span>Tipo de Cambio:<span/> ${data.cotizacion}<span></span>
-          </div>
-          -------------------------------------
-          <div class="left">
-            <span>Total: </span><span> ${data.recibe} ${data.moneda_recibe}</span></br>                   
-            <span>Usuario: caja<span/><span></span>
-          </div>
-          <div class="footer"></br>
-          Representación impresa de la boleta
-          electrónica</br>
-          Para consultar el documento ingrese
-          a https://https://ww1.sunat.gob.pe/ol-ti-itconsultaunificadalibre/consultaUnificadaLibre/consulta</br>
-          </div>
+        // console.log(data)
 
-          !Gracias por su preferencia!
-        </div>   
-        `;
+				if(!data.checkAmount){
+					modal.innerHTML = `
+						<div></br> 
+							<div>
+								Casa de Cambios ${config.nombreComercial}</br>
+								${config.direccion}
+							<span class="separador">
+								<span>Telf: </span><span class="left"> ${config.telefono}</span>
+							</span>
+							<span class="separador">
+							<span>RUC: </span><span class="left"> ${config.ruc}</span>
+							</span>
+							-------------------------------------</br>
+							BOLETA DE VENTA ELECTRONICA</br>
+							-------------------------------------</br></div>
+							<div class="left">
+								<span>Fecha: </span><span>${fechaBoleta}</span></br>
+								<span>Ticket n: </span><span> ${config.serieBoleta}-${String(data.correlativo)}</span></br>
+								<span>Nombre: </span><span>${String(data.cliente[2])}</span></br>
+								<span>DOC: </span><span>${String(data.cliente[0])} ${String(data.cliente[1])}</span></br>
+								<span>Direccion: </span><span>LIMA</span></br>
+								<span>Operacion: </span><span>${tipo} ${data.moneda}</span></br>
+							</div>
+							-------------------------------------
+							<div class="left">
+								<span>Monto:</span><span> ${data.monto} ${data.moneda}</span></br>                   
+								<span>Tipo de Cambio:<span/> ${data.cotizacion}<span></span>
+							</div>
+							-------------------------------------
+							<div class="left">
+								<span>Total: </span><span> ${data.recibe} ${data.moneda_recibe}</span></br>                   
+								<span>Usuario: caja<span/><span></span>
+							</div>
+							<div class="footer"></br>
+							Representacion impresa de la boleta
+							electronica</br>
+							Para consultar el documento ingrese
+							a https://https://ww1.sunat.gob.pe/ol-ti-itconsultaunificadalibre/consultaUnificadaLibre/consulta</br>
+							</div>
+
+							!Gracias por su preferencia!</br></br>
+							-------------------------------------</br>
+							---------------------------------------</br>
+						</div></br>   
+						`;
+				}else{
+					let selectFavor = document.getElementById('favor');
+					let selectedOrigen = document.getElementById('origen').value;
+					const arrayOrigen = {
+							"001": "Ahorros",
+							"002": "Alquiler de Bienes Muebles",
+							"003": "Alquiler de Bienes Inmuebles",
+							"004": "Donacion/Sorteo",
+							"005": "Ingreso por Trabajo Independiente",
+							"006": "Ingreso por Trabajo Dependiente",
+							"007": "Ingresos por regalia",
+							"008": "Prestamos",
+							"009": "Venta de Bien Mueble",
+							"010": "Venta de Bien Inmueble",
+							"099": "Otros"
+					}
+					
+          let favorText = selectFavor.options[selectFavor.selectedIndex].text;
+					let beneficiario = document.getElementById('beneficiario');
+					let beneficiarioText = beneficiario.options[beneficiario.selectedIndex].text;
+					const beneficiarioArray = beneficiarioText.split("-");
+
+					let divBeneficiario = '';
+
+					if(String(beneficiarioArray[2]) != ''){
+						divBeneficiario= 
+							`<span>R. Social: </span><span>${String(beneficiarioArray[2])}</span></br>
+							 <span>DOC: </span><span>${String(beneficiarioArray[0])} ${String(beneficiarioArray[1])}</span></br>`;
+					}
+							
+
+					modal.innerHTML = `
+						<div>
+							<div>Declaración Jurada de conocimiento </br>
+								del ejecutante bajo el regimen ${config.regimen}
+								</br></br>
+								Casa de Cambios ${config.nombreComercial}</br>
+								${config.direccion}
+							<span class="separador">
+								<span>Telf: </span><span class="left"> ${config.telefono}</span>
+							</span>
+							<span class="separador">
+							<span>RUC: </span><span class="left"> ${config.ruc}</span>
+							</span>
+							-------------------------------------</br>
+							BOLETA DE VENTA ELECTRONICA</br>
+							-------------------------------------</br></div>
+							<div class="left">
+								<span>Fecha: </span><span>${fechaBoleta}</span></br>
+								<span>Ticket n: </span><span> ${config.serieBoleta}-${String(data.correlativo)}</span></br>
+								<span><b>Ejecutante:</b></span></br>
+								<span>Por el presente documento declaro bajo juramento lo siguiente:</span></br>
+								<span>Nombre: </span><span>${String(data.cliente[2])}</span></br>
+								<span>DOC: </span><span>${String(data.cliente[0])} ${String(data.cliente[1])}</span></br>
+								<span>Pais: </span><span>${String(data.cliente[3])}</span></br>
+								<span>Ocupación: </span><span>${String(data.cliente[4])}</span></br>
+								<span>Funcion Politica: </span><span>${String(data.cliente[5])}</span></br>
+							</div>
+							-------------------------------------
+							<div class="left">
+								<span><b>Beneficiario:</b></span></br>
+								<span>Operacion a favor de: </span><span>${favorText}</span></br>
+								${divBeneficiario}
+							</div>
+							-------------------------------------</br>
+							<span>Origen del dinero involucrado: </br>
+							${arrayOrigen[selectedOrigen]}</span></br>
+							-------------------------------------
+							<div class="left">
+								<span><b>Propósito de la Operacion:</b></span></br>
+								<span>${tipo} de moneda extranjera</span></br>
+								<span>Cantidad:</span><span> ${data.monto} ${data.moneda}</span></br> 
+								<span>Valor: </span><span> ${data.recibe} ${data.moneda_recibe}</span></br>
+								<span>Tipo de Cambio:<span/> ${data.cotizacion}<span></span>                   
+								<span>Usuario: caja<span/><span></span>
+							</div>
+							<div class="footer"></br>
+							Afirmo y ratifico todo lo manifestado en </br>
+							la presente Declaracion Jurada.
+							</br>
+							Firma:
+							</br>
+							-------------------------------------</br>
+							</div></br>
+							!Gracias por su preferencia!</br>
+							</br>-------------------------------------</br>
+							---------------------------------------</br>
+						</div></br>   
+						`;
+				}
+     
         div.appendChild(modal);
         window.print();
         modal.remove();
+		// location.reload();
       }
 
+	async function checkAmount(amount, money){
+		let contizacionAmount = await getCotizacionDivisa(money);
+		let queryUsd = await fetch('Operaciones/get_divisas');
+		let contizacionUsd = await queryUsd.json();
+		contizacionUsd = contizacionUsd.filter(d => d.cod_divisa === 'USD')[0];
+		contizacionUsd = contizacionUsd.com_divisa;
+		// console.log(contizacionAmount , contizacionUsd)
+		let checkCantidad = (contizacionAmount / contizacionUsd) * amount;
+		// console.log(checkCantidad);
+		if(checkCantidad >= 5000){
+			checkCantidad = true;
+		}else{
+			checkCantidad = false;
+		}
+		return checkCantidad;
+	}
+
+		//Obtener divisas para calcular el equivalente en usd mayor a 5000
+		const getCotizacionDivisa = async (divisa) => {
+			const query = await fetch('Operaciones/get_divisas');
+			const dataDivisas = await query.json();
+			const cotizacion = dataDivisas.filter(d => d.cod_divisa === divisa)[0];
+			return cotizacion.com_divisa;
+		}
+
+		const handleSelect = () => {
+			const favor = document.getElementById('favor');
+			if(favor.value == '003' || favor.value == '004'){
+				document.getElementById('show-ejecutante').style.display = 'block';
+			}else{
+				document.getElementById('show-ejecutante').style.display = 'none';
+			}
+		}
+
+		const handleOperations = (evt, monto, cotizacion, recibe, data ) => {
+
+		let beneficiario = document.getElementById('beneficiario');
+		let beneficiarioText = beneficiario.options[beneficiario.selectedIndex].text;
+		const beneficiarioArray = beneficiarioText.split("-");
+		const favor = document.getElementById('favor');
+		// console.log(beneficiarioArray[2], favor.value)
+		if(favor.value == '003' || favor.value == '004'){
+			if(beneficiarioArray[2] === ''){
+				swal({
+					title: "Beneficiario es Obligatorio",
+					icon: "warning",
+					buttons: true,
+					dangerMode: true,
+				});
+				return;
+			}
+			
+		}
+						
+						
+
+									let form = evt.target; 
+										swal({
+											title: "Registrar?",
+											icon: "warning",
+											buttons: true,
+											dangerMode: true,
+										})
+										.then((aceptado) => {
+											//VERIFICANDO LOS DATOS ENVIADOS
+											if (aceptado){
+											
+					
+												swal("Guardando y Reportando...!", {
+													icon: "info",   
+													buttons: false, 
+												})
+							
+												fetch('Operaciones/save_operacion', {
+													method: 'POST',
+													headers: {
+													'Content-Type': 'application/json',
+													},
+													body: JSON.stringify(data)
+												})
+												// .then(lastOperation => lastOperation.json())
+												// .then(lastOperation => console.log(lastOperation))
+												.then(res => {
+
+													document.getElementById('monto').value = 0;
+													document.getElementById('recibe').value = 0;
+													document.getElementById('mostrar_resultado').textContent = 0;
+													// document.getElementById('cliente').option = 0;
+
+													return res.json();
+												})
+												.then(async res => {
+													
+													//consultamos el ultimo correlativo
+													// para asignarlo al nuevo
+													const queryCorrelativo = await fetch('Operaciones/check_operacion_id', {
+																														method: 'POST',
+																														headers: {
+																														'Content-Type': 'application/json',
+																														},
+																														body: JSON.stringify(res)
+																													});
+													const latestCorrelativo = await queryCorrelativo.json();
+																											
+													//add correlativo actual
+													data.correlativo = Number(latestCorrelativo.correlative_sunat);
+													
+													//print
+													printTicket(data);
+																													
+													getToken(data)
+														.then(respuesta => {
+															// console.log(respuesta)
+															if(respuesta.sunatResponse.success){
+																swal("Reportado correctamente a la Sunat!", {
+																	icon: "success",   
+																	buttons: {
+																		defeat: "ok",
+																	}, 
+																})
+			
+																//actualizar report de la operacion
+																fetch('Operaciones/update_operacion', {
+																		method: 'POST',
+																		headers: {
+																		'Content-Type': 'application/json',
+																		},
+																	body: JSON.stringify(res)
+																});
+																
+
+															}else{
+
+																swal({
+																	title: "Ha ocurrido un problema con sunat!",
+																	text: "Debe volver a enviar desde reportes detallados",
+																	icon: "warning",   
+																	buttons: {
+																		defeat: "ok",
+																	}, 
+																})
+
+
+															}
+														})
+														.catch(err => {
+															
+															swal({
+																	title: "Ha ocurrido un problema con sunat!",
+																	text: "Se ha guardado en la BASE DE DATOS esta operación correctamente, pero no se ha reportado a sunat esta operacion, Debe volver a enviar desde reportes detallados",
+																	icon: "warning",   
+																	buttons: {
+																		defeat: "ok",
+																	}, 
+																})
+														})
+												})
+
+											}
+
+										})
+
+                    $('#myModal').modal('hide')
+			}
       </script>
 
       <!-- End of Main Content -->

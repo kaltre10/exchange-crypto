@@ -129,15 +129,20 @@ let numeroALetras = (function() {
         return strMillones + ' ' + strMiles;
     }//Millones()
     
-    return function NumeroALetras(num, currency) {
-        currency = currency || {};
+    return function NumeroALetras(num, moneda) {
+        // currency = currency || {};
+		const currency = {
+			"USD": { plural: 'DÓLARES', singular: 'DÓLAR'},
+			"PEN": { plural: 'SOLES', singular: 'SOL'},
+			"EUR": { plural: 'EUROS', singular: 'EURO'},
+		}
         let data = {
             numero: num,
             enteros: Math.floor(num),
             centavos: (((Math.round(num * 100)) - (Math.floor(num) * 100))),
             letrasCentavos: '',
-            letrasMonedaPlural: currency.plural || 'SOLES',//'PESOS', 'Dólares', 'Bolívares', 'etcs'
-            letrasMonedaSingular: currency.singular || 'SOL', //'PESO', 'Dólar', 'Bolivar', 'etc'
+            letrasMonedaPlural: currency[moneda].plural || 'SOLES',//'PESOS', 'Dólares', 'Bolívares', 'etcs'
+            letrasMonedaSingular:  currency[moneda].singular || 'SOL', //'PESO', 'Dólar', 'Bolivar', 'etc'
             letrasMonedaCentavoPlural: currency.centPlural || 'CENTIMOS',
             letrasMonedaCentavoSingular: currency.centSingular || 'CENTIMO'
         };
