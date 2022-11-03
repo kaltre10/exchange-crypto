@@ -135,6 +135,8 @@ class Reporte_general extends CI_Controller {
 			if(!$cierres){
 				$cierres = 0;
 			}
+	
+
 
 			$data = array(
 				'header' => $this->load->view('admin/header','',TRUE),
@@ -145,7 +147,7 @@ class Reporte_general extends CI_Controller {
 				'divisas' => $array,
 				'registro_cotizacion' => $ope_cotizacion,
 				'cierre' => $cierre,
-				'cierres' => $cierres
+				'cierres' => $cierres,
 			);
 
 			$this->load->view('admin/Reporte_general', $data);

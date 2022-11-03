@@ -62,36 +62,51 @@
   <!-- <script src="<?= base_url("assets/js/demo/chart-pie-demo.js"); ?>"></script> -->
   <script src="<?=  base_url("assets/select2-4.0.13/dist/js/select2.min.js"); ?>"></script>
   <script>
+
+
+		
+			
+
     $(document).ready(function() {
-    $('#table_clientes').DataTable({
-      language: {
-        "decimal": "",
-        "emptyTable": "No hay información",
-        "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
-        "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
-        "infoFiltered": "(Filtrado de _MAX_ total entradas)",
-        "infoPostFix": "",
-        "thousands": ",",
-        "lengthMenu": "Mostrar _MENU_ Entradas",
-        "loadingRecords": "Cargando...",
-        "processing": "Procesando...",
-        "search": "Buscar:",
-        "zeroRecords": "Sin resultados encontrados",
-        "paginate": {
-            "first": "Primero",
-            "last": "Ultimo",
-            "next": "Siguiente",
-            "previous": "Anterior"
-        }
-    },
-    });
+			
+		if(document.getElementById("table_sal_ent")){
+			console.log("okok")
+			$('#table_sal_ent').DataTable()
+		}
+		
+
+		if(document.getElementById("table_clientes")){
+			$('#table_clientes').DataTable({
+				language: {
+					"decimal": "",
+					"emptyTable": "No hay información",
+					"info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+					"infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+					"infoFiltered": "(Filtrado de _MAX_ total entradas)",
+					"infoPostFix": "",
+					"thousands": ",",
+					"lengthMenu": "Mostrar _MENU_ Entradas",
+					"loadingRecords": "Cargando...",
+					"processing": "Procesando...",
+					"search": "Buscar:",
+					"zeroRecords": "Sin resultados encontrados",
+					"paginate": {
+							"first": "Primero",
+							"last": "Ultimo",
+							"next": "Siguiente",
+							"previous": "Anterior"
+					}
+			},
+			});
+		}
+
     $('.select2-divisas').select2();
     $('.select2-categorias').select2();
     $('.select2-monedas').select2();
     $('.select2-clientes').select2();
     $('.select2-monedas_recibe').select2();
-   });
-
+	
+   });		
      
   </script>
 </body>

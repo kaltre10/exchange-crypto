@@ -87,17 +87,17 @@
               <?php 
                 $suma = 0;
                 $suma_gastos_compra = 0; 
-                $porcentaje_compra_anterior = 0;
-                $porcentaje_compra = 0;
-                $peso_anterior = 0; //peso del valor porcentual
-                $peso = 0; //peso del valor porcentual
+                $porcentaje_anterior = 0;
+                $porcentaje_actual = 0;
+                $cot_anterior = 0; //peso del valor porcentual
+                $cot_actual = 0; //peso del valor porcentual
                 $index = 0;
                
                 $cotizacion = 0;
                 $cot = 0;
               ?>   
               <?php foreach ($divisas as $key) : ?>
-              
+             
               <?php if ($key['caja'] == 0) {
                 
                 continue;
@@ -111,8 +111,8 @@
                       <?php
                       //asignamos primero la cotizacion registrada en el sistema
 				              $cot = $key['cotizacion'];
-
-                      if($cierres != 0){
+											
+                      if($result != 0){
                         $last_date = $cierres[0][array_key_last($cierres)]->fec_cierre;
 
                         $result = array_filter($cierres, function($a) {
@@ -123,111 +123,128 @@
                         $result = $cierres;
                       }
                      
-                     
-                     
+											
                       foreach ($result as $cie){
-                      
-                        
-                          if($cie[$index]->cod_divisa_cierre === $key['codigo'] ){
-                            
-                            foreach ($registro_cotizacion as $arr){
-                             
+												
+												
+                          // if($cie[$index]->cod_divisa_cierre === $key['codigo'] ){
+                            foreach ($registro_cotizacion as $arr){	
                               //asignamos la cotizacion del cierre anterior si es la misma divisa 
-                              if($arr['codigo'] == $cie[$index]->cod_divisa_cierre){ 
-                               
-                                foreach ($cie as $c){ 
-                                 
-                                  if($c->cod_divisa_cierre == $arr['codigo']){
-                                    $cot = $c->cot_cierre;
-                                  
-                                  }
-                                }
-  
-                              }
-                             
-                                if ( $arr['compras'] == 0){
+
+															/***************/
+															/*START TESTING */
+															/***************/
+                              // if($arr['codigo'] == $cie[$index]->cod_divisa_cierre){    
+                              //   foreach ($cie as $c){ 
+                              //     if($c->cod_divisa_cierre == $arr['codigo']){
+															// 			echo $c->cot_cierre . "<br>";
+															// 			$cot = $c->cot_cierre;
+                              //     }
+                              //   }
+                              // }
+															/***************/
+															/*END TESTING */
+															/***************/
+															
+															// echo $cie[$index]->cod_divisa_cierre . "-" . $arr['codigo']  ." <br>";
+                                if ( $arr['compras'] == 0 || $cie[$index]->cod_divisa_cierre != $arr['codigo']){
                                 continue;
                                 } 
-                                
-                                if($arr['codigo'] == $key["codigo"]){
-
-                                  $caja_sal_ent = 0;
+                                if($arr['codigo'] == $key["codigo"] ){
+                                  // $caja_sal_ent = 0;
                                   //salidas y entradas
-                                  foreach($ent_sal as $ent){
+                                  // foreach($ent_sal as $ent){
 
-                                    //verificamos que no este anulado
-                                    if($ent->sta_ent_sal == 0){
-                                      continue;
-                                    }
+                                  //   //verificamos que no este anulado
+                                  //   if($ent->sta_ent_sal == 0){
+                                  //     continue;
+                                  //   }
 				
-                                    if($ent->cod_divisa == $key['codigo'] && $ent->tip_ent_sal == 'Entrada'){
+                                  //   if($ent->cod_divisa == $key['codigo'] && $ent->tip_ent_sal == 'Entrada'){
                                     
-                                        $caja_sal_ent = $caja_sal_ent + $ent->can_ent_sal; 
+                                  //       $caja_sal_ent = $caja_sal_ent + $ent->can_ent_sal; 
                                        
-                                    }
+                                  //   }
 
-                                    if($ent->cod_divisa == $key['codigo'] && $ent->tip_ent_sal == 'Salida'){
+                                  //   if($ent->cod_divisa == $key['codigo'] && $ent->tip_ent_sal == 'Salida'){
                                     
-                                      $caja_sal_ent = $caja_sal_ent - $ent->can_ent_sal; 
+                                  //     $caja_sal_ent = $caja_sal_ent - $ent->can_ent_sal; 
                                      
-                                    }
-                                  }
-                                  
+                                  //   }
+                                  // }
                                   //formula calcular cotizacion
                                   //cantidad_cierre_anterior * 100 / cantidad _total;
-                                  $porcentaje_compra_anterior = ($cie[$index]->can_cierre * 100) / ((($key['caja'] + $arr['ventas']) - $caja_sal_ent));
-                                  $peso_anterior = $porcentaje_compra_anterior * $cie[$index]->cot_cierre;
-                                 
-                                  $cotizacion = str_pad(round($arr['gastos_compra'] / $arr['compras'] , 4), 4);
-                                  $porcentaje_compra = ($arr['compras'] * 100) /((($key['caja'] + $arr['ventas']) - $caja_sal_ent));
-                                  $peso = $cotizacion * $porcentaje_compra;
+                                  // $porcentaje_compra_anterior = ($cie[$index]->can_cierre * 100) / ((($key['caja'] + $arr['ventas']) - $caja_sal_ent));
+                                  // $peso_anterior = $porcentaje_compra_anterior * $cie[$index]->cot_cierre;
                                   
-                                  $cot =  ($peso_anterior + $peso) / 100;
-                                  
+                                  // $cotizacion = str_pad(round($arr['gastos_compra'] / $arr['compras'] , 4), 4);
+                                  // $porcentaje_compra = ($arr['compras'] * 100) /((($key['caja'] + $arr['ventas']) - $caja_sal_ent));
+                                  // $peso = $cotizacion * $porcentaje_compra;
+																	// $cot =  ($peso_anterior + $peso) / 100;
+																	/******************************** */
+																	/******************************** */
+																	/******************************** */
+																	$base = 100;
+																	// echo $cie[$index]->compra_cierre . "<br>";
+																	// echo $cie[$index]->cot_cierre . "<br>";
+																	// echo $arr['compras'] . "<br>";
+																	// echo $arr['gastos_compra']/$arr['compras']. "<br>";
+																	$porcentaje_anterior = ($cie[$index]->compra_cierre * $base)/($cie[$index]->compra_cierre + $arr['compras']);
+
+																	$porcentaje_actual = ($arr['compras'] * $base)/($cie[$index]->compra_cierre + $arr['compras']);
+
+																	// echo $porcentaje_anterior . "<br>";
+																	// echo $porcentaje_actual . "<br>";
+																	$cot_anterior = ($cie[$index]->cot_cierre * $porcentaje_anterior) / $base;
+																	// echo $cot_anterior;
+																	$cot_actual = (($arr['gastos_compra']/$arr['compras']) * $porcentaje_actual) / $base;
+																	// echo $cot_anterior . "<br>";
+																	// echo $cot_actual. "<br>";
+																	// echo $cot_anterior + $cot_actual;
+																	$cot = $cot_anterior + $cot_actual;
+																	// echo $arr['codigo'] . " - " . $arr['compras'] . " - " . $cot . "<br>"; 
+																
+																	// echo $arr['codigo'] . "-" . $key["codigo"]  ."-". $arr['compras'] . "-".$cot."<br>";
                                 }
-                                
-                             
-                               
-                              }
-                                 
-                             
-                          }
-                        
-       
-                      
+                              }                     
+                          // }         
                         //si no hay compras en el dia y la cotizacion es 0 se iguala al cierre anterior
+												
                         $last_date_cierre = $cierres[0][0]->fec_cierre;
                         foreach($cie as $c){
+													// echo $key["codigo"] . "-" . $key["codigo"] . "-" . $c->cod_divisa_cierre . "-" . $c->fec_cierre . "-" .  $c->cot_cierre . "<br/>";
                           foreach($registro_cotizacion as $reg){                        
                             if($reg['codigo'] == $key["codigo"] && $c->cod_divisa_cierre == $key["codigo"] && $c->fec_cierre == $last_date_cierre && $reg['compras'] == 0){   
                               $cot = $c->cot_cierre;
                             }
                           }
+													
                         }
-                        
-
+												
                         //verificamos si ya se hizo el cierre del dia
-                        if($cie[$index]->fec_cierre == date('Y-m-d')){       
+                        if($cie[$index]->fec_cierre == date('Y-m-d')){ 	   
                           foreach ($cie as $c){  
                             if($c->cod_divisa_cierre == $key["codigo"]){
+															
                               $cot = $c->cot_cierre;
                             }
                           }
                         }
-                      
-                        $index++;
+												
                       }
-                      
+											
+											$index++;
                   
                         //si la divisa es soles igualamos a 1 la cotizacion
                         if($key['codigo'] === 'PEN'){
                           $cot = 1;
                         } 
-              
+											
                        //si no hay cierre anterior(primer dia)
                       if($cierres === 0){
                         
                         foreach ($registro_cotizacion as $arr){
+													
                           if ( $arr['compras'] == 0){
                             continue;
                           } 
@@ -235,6 +252,7 @@
                           if($arr['codigo'] == $key["codigo"] && $key["cotizacion"] > 0){
                             $cot = str_pad(round($arr['gastos_compra'] / $arr['compras'] , 4), 4);
                           }
+														// echo "si hay cierre" . " " . $cot;  
                         }
                       }
                
@@ -249,7 +267,7 @@
                           } 
                         
                           $array_cierres = array_column($cierres[0], 'cod_divisa_cierre');
-                         
+													
                           foreach($cierres as $cie){
                             if($arr['codigo'] == $key["codigo"] && !in_array($arr['codigo'], $array_cierres)){
                               
@@ -272,7 +290,7 @@
               <?php endforeach; ?>
                     <tr>
                       <td colspan="4" class=" text-center font-weight-bold">Total</td>
-                      <td class="font-weight-bold"><?= str_pad($suma, 4,); ?></td>
+                      <td class="font-weight-bold"><?= str_pad($suma, 4); ?></td>
                     </tr>
                   </tbody>
                 </table>

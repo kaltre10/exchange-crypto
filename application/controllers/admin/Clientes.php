@@ -34,10 +34,36 @@ class Clientes extends CI_Controller {
 			$data = array(
 				'doc_cliente' => $this->input->post('doc_cliente'),
 				'n_cliente' => $this->input->post('n_cliente'),
-				'nom_cliente' => $this->input->post('nom_cliente')
+				'nom_cliente' => $this->input->post('nom_cliente'),
+				'pais_cliente' => $this->input->post('pais_cliente'),
+				'ocu_cliente' => $this->input->post('ocu_cliente'),
+				'po_cliente' => $this->input->post('po_cliente')
 			);
 
 			$this->clientes_model->save($data);
+			redirect(base_url('admin/Clientes'));
+
+		}else{
+			redirect(base_url('login'));
+		}
+		
+	}
+
+	public function editar_cliente() {
+		if ($this->session->userdata('isLogged') && $this->session->userdata('rango') == 0
+			|| $this->session->userdata('rango') == 1) {
+
+			$data = array(
+				'id_cliente' => $this->input->post('id_cliente'),
+				'doc_cliente' => $this->input->post('doc_cliente'),
+				'n_cliente' => $this->input->post('n_cliente'),
+				'nom_cliente' => $this->input->post('nom_cliente'),
+				'pais_cliente' => $this->input->post('pais_cliente'),
+				'ocu_cliente' => $this->input->post('ocu_cliente'),
+				'po_cliente' => $this->input->post('po_cliente')
+			);
+
+			$this->clientes_model->editar($data);
 			redirect(base_url('admin/Clientes'));
 
 		}else{

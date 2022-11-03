@@ -112,6 +112,7 @@ class Utilidad extends CI_Controller {
 				'nav' => $this->load->view('admin/nav','',TRUE),
 				'dataDays' => $arrayDays
 			);
+			// print_r($data);
 			$this->load->view('admin/utilidad', $data);
 		}else{
 			redirect(base_url('login'));
@@ -121,14 +122,15 @@ class Utilidad extends CI_Controller {
 
 	public function ganancia(){
 		$cierre = $this->get_cierre();
-		// echo $cierre . "<br>";
 		$reporte_dia = $this->get_reporte();
+		// echo $cierre . "<br>";
+		// echo $reporte_dia . "<br>";
+		
 		if ($cierre > $reporte_dia) {
 			$ganancia = $cierre - $reporte_dia;
 		}else{
 			$ganancia = $reporte_dia - $cierre;
 		}
-		
 		if ($ganancia) {
 			return str_pad(round($ganancia, 2), 2);
 		}else{
@@ -205,17 +207,22 @@ class Utilidad extends CI_Controller {
 	if(!$cierres){
 		$cierres = 0;
 	}
+ 
+	// $peso_anterior = 0; //peso del valor porcentual
+	// $peso = 0; //peso del valor porcentual
+	// $index = 0;
+	$divisas = $this->divisas_model->getall();
 
 	$suma = 0;
 	$suma_gastos_compra = 0; 
-	$porcentaje_compra_anterior = 0;
-	$porcentaje_compra = 0;
-	$peso_anterior = 0; //peso del valor porcentual
-	$peso = 0; //peso del valor porcentual
+	$porcentaje_anterior = 0;
+	$porcentaje_actual = 0;
+	$cot_anterior = 0; //peso del valor porcentual
+	$cot_actual = 0; //peso del valor porcentual
 	$index = 0;
+	
 	$cotizacion = 0;
 	$cot = 0;
-	$divisas = $this->divisas_model->getall();
 
 	foreach ($ganancia as $key){
 		
@@ -255,39 +262,45 @@ class Utilidad extends CI_Controller {
 
 					$caja_sal_ent = 0;
 					//salidas y entradas
-					foreach($ent_sal as $ent){
+					// foreach($ent_sal as $ent){
 
-						//verificamos que no este anulado
-						if($ent->sta_ent_sal == 0){
-							continue;
-						}
+					// 	//verificamos que no este anulado
+					// 	if($ent->sta_ent_sal == 0){
+					// 		continue;
+					// 	}
   
-						if($ent->cod_divisa == $key['codigo'] && $ent->tip_ent_sal == 'Entrada'){
+					// 	if($ent->cod_divisa == $key['codigo'] && $ent->tip_ent_sal == 'Entrada'){
 					  
-							$caja_sal_ent = $caja_sal_ent + $ent->can_ent_sal;
+					// 		$caja_sal_ent = $caja_sal_ent + $ent->can_ent_sal;
 							 
-						  }
+					// 	  }
 
-						  if($ent->cod_divisa == $key['codigo'] && $ent->tip_ent_sal == 'Salida'){
+					// 	  if($ent->cod_divisa == $key['codigo'] && $ent->tip_ent_sal == 'Salida'){
 									
-							$caja_sal_ent = $caja_sal_ent - $ent->can_ent_sal; 
+					// 		$caja_sal_ent = $caja_sal_ent - $ent->can_ent_sal; 
 						   
-						  }
+					// 	  }
 
-					}
+					// }
 
 					//formula calcular cotizacion
 					//cantidad_cierre_anterior * 100 / cantidad _total;
-					$porcentaje_compra_anterior = ($cie[$index]->can_cierre * 100) / ((($key['caja'] + $arr['ventas']) - $caja_sal_ent));
-					$peso_anterior = $porcentaje_compra_anterior * $cie[$index]->cot_cierre;
+					// $porcentaje_compra_anterior = ($cie[$index]->can_cierre * 100) / ((($key['caja'] + $arr['ventas']) - $caja_sal_ent));
+					// $peso_anterior = $porcentaje_compra_anterior * $cie[$index]->cot_cierre;
 					
-					$cotizacion = str_pad(round($arr['gastos_compra'] / $arr['compras'] , 4), 4);
-					$porcentaje_compra = ($arr['compras'] * 100) /((($key['caja'] + $arr['ventas']) - $caja_sal_ent));
-					$peso = $cotizacion * $porcentaje_compra;
+					// $cotizacion = str_pad(round($arr['gastos_compra'] / $arr['compras'] , 6), 6);
+					// $porcentaje_compra = ($arr['compras'] * 100) /((($key['caja'] + $arr['ventas']) - $caja_sal_ent));
+					// $peso = $cotizacion * $porcentaje_compra;
 					
-					$cot =  ($peso_anterior + $peso) / 100;
+					// $cot =  ($peso_anterior + $peso) / 100;
 
-				   
+					$base = 100;
+					$porcentaje_anterior = ($cie[$index]->compra_cierre * $base)/($cie[$index]->compra_cierre + $arr['compras']);
+					$porcentaje_actual = ($arr['compras'] * $base)/($cie[$index]->compra_cierre + $arr['compras']);
+					$cot_anterior = ($cie[$index]->cot_cierre * $porcentaje_anterior) / $base;
+					$cot_actual = (($arr['gastos_compra']/$arr['compras']) * $porcentaje_actual) / $base;
+					$cot = $cot_anterior + $cot_actual;
+					// echo  $arr['compras'] . "<br>"; 
 				  }
 			  }
 			
@@ -334,7 +347,7 @@ class Utilidad extends CI_Controller {
 		
 			if($arr['codigo'] == $key["codigo"] && $key["cotizacion"] > 0){
 			
-			  $cot = str_pad(round($arr['gastos_compra'] / $arr['compras'] , 4), 4);
+			  $cot = str_pad(round($arr['gastos_compra'] / $arr['compras'] , 6), 6);
 			}
 		  }
 

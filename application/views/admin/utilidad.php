@@ -81,7 +81,8 @@
                   <div class="row no-gutters align-items-center">
                     <div class="col mr-2">
                       <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Ganancias</div>
-                      <div class="h5 mb-0 font-weight-bold text-gray-800"><span class="text-success">S/. <?= str_pad(round($ganancia, 4) , 4); ?></span></div>
+                      <!-- <div class="h5 mb-0 font-weight-bold text-gray-800"><span class="text-success">S/. <?= str_pad(round($ganancia, 4) , 4); ?></span></div> -->
+											<div class="h5 mb-0 font-weight-bold text-gray-800"><span class="text-success" id="gananciaTotal"></span></div>
                     </div>
                     <div class="col-auto">
                       <i class="fas fa-money-bill-wave fa-2x  text-gray-300" aria-hidden="true"></i>
@@ -101,8 +102,8 @@
                       <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Gastos</div>
                       <div class="row no-gutters align-items-center">
                         <div class="col-auto">
-                          <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800"><span class="text-danger">S/. -<?= $gastos; ?></span></div>
-                        </div>
+                          <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800"><span class="text-danger">S/. -<span id="gastos"><?= $gastos; ?></span></span></div>
+                        </div> 
                       </div>
                     </div>
                     <div class="col-auto">
@@ -120,7 +121,8 @@
                   <div class="row no-gutters align-items-center">
                     <div class="col mr-2">
                       <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Total</div>
-                      <div class="h5 mb-0 font-weight-bold text-gray-800">S/.<span class="<?php if(($ganancia - $gastos) > 0) { echo "text-success";}else{ echo "text-danger";} ?>"><?= $ganancia - $gastos; ?></span></div>
+                      <!-- <div class="h5 mb-0 font-weight-bold text-gray-800">S/.<span class="<?php if(($ganancia - $gastos) > 0) { echo "text-success";}else{ echo "text-danger";} ?>"><?= $ganancia - $gastos; ?></span></div> -->
+											<div class="h5 mb-0 font-weight-bold text-gray-800">S/.<span id="total" class="<?php if(($ganancia - $gastos) > 0) { echo "text-success";}else{ echo "text-danger";} ?>"></span></div>
                     </div>
                     <div class="col-auto">
                       <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
@@ -131,7 +133,7 @@
             </div>
 
             </div> 
-					
+
 						<p>Registro Diario por dia:</p>
 						<div class="table-responsive">
                 <table class="table table-sm text-center table-hover" id="dataTable" width="100%" cellspacing="0">
@@ -149,13 +151,14 @@
 						<?php //unset($dataDays[count($dataDays) - 1]); ?>
 				
 						<?php foreach($dataDays as $key) : ?>
+							
 						<?php if($key['ganancia'] == 0 && $key['gasto'] == 0){
 							continue;
 						}?>
               
                     <tr>
 											<th><?= date("Y-m-d",strtotime($key['fecha'])); ?></th>
-											<th><?= $key['ganancia']; ?></th>
+											<th class="gananciaItems"><?= $key['ganancia']; ?></th>
 											<th><?= $key['gasto']; ?></th>
 											<th><?=  $key['ganancia'] - $key['gasto']; ?></th>
 										</tr>
@@ -175,6 +178,17 @@
         <!-- /.container-fluid -->
       </div>
       <!-- End of Main Content -->
+			<script>
+				let gananciaTotal = document.getElementById('gananciaTotal');
+				let gananciaItems = document.querySelectorAll('.gananciaItems');
+				let gastos = document.getElementById('gastos').textContent;
+				let total = document.getElementById('total');
+				let valueGananciaTotal = Object.values(gananciaItems)
+												.map( e => e.textContent )
+												.reduce((act, acum) => Number(act) + Number(acum), 0);
+				gananciaTotal.textContent = `S/. ${(valueGananciaTotal).toFixed(2)}`;
+				total.textContent = (Number(valueGananciaTotal) - Number(gastos)).toFixed(2);
+			</script>
       <script src="<?= base_url("assets/js/numeroAletras.js"); ?>"></script>
       <script src="<?= base_url("assets/js/boleta-electronica.js"); ?>"></script>
 <?= $footer; ?>

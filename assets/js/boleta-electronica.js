@@ -447,5 +447,6 @@ const config = {
   nombreComercial: "El Fiel Test",
   direccion: "Avenida Tomás Marsano 2819 - Urbanización Higuereta. Santiago de Surco, Lima.",
 	telefono: "000 000 000",
-	serieBoleta: 'B001'
+	serieBoleta: 'B001',
+	regimen: "General"
 }

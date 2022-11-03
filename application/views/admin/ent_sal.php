@@ -8,66 +8,66 @@
 
   <!-- Modal -->
   <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="exampleModalLabel">Crear Nueva Salida/Entrada</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-        <form id="enviar" action="<?= base_url('admin/Ent_sal/save_ent_sal'); ?>" method="POST">
-          <div class="form-row">
-            <div class="form-group col-6">
-              <label class="col-form-label">Tipo:</label>
-              <select class="form-control" name="tip_ent_sal" required>
-                <option value=""> - </option>
-                <option value="Salida">Salida</option>
-                <option value="Entrada">Entrada</option>
-              </select>
-            </div>
-            <div class="form-group col-6">
-              <label for="recipient-name" class="col-form-label">Cantidad:</label>
-              <input type="number" step="any" min="0" class="form-control" name="can_ent_sal" required>
-            </div>
-          </div>
-          <div class="form-row">
-            <div class="form-group col-6">
-              <label class="col-form-label">Moneda:</label>
-                <select class="form-control select2-divisas" name="id_divisa" required>
-                  <option value=""> - </option>
-                  <?php foreach ($divisas as $key) : ?>
-                  <option value="<?= $key->id_divisa; ?>"> <?php echo $key->cod_divisa . " - " . $key->nom_divisa; ?> </option>
-                  <?php endforeach; ?>
-                </select>
-           
-            </div>
-            <div class="form-group col-6">
-              <label class="col-form-label">Categoria:</label>
-              <select class="form-control select2-categorias" name="id_categoria" required>
-                  <option value=""> - </option>
-                  <?php foreach ($categorias as $key) : ?>
-                  <option value="<?= $key->id_categoria; ?>"> <?php echo $key->nom_categoria; ?> </option>
-                  <?php endforeach; ?>
-                </select>
-            </div>
-          </div>
-          
-          <div class="form-group">
-            <label class="col-form-label">Descripción:</label>
-            <textarea class="form-control" maxlength="50" name="des_ent_sal" required></textarea>
-          </div>
-        
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
-        <button onclick="guardar();" type="submit" class="btn btn-success">Guardar</button>
-        </form>
-      </div>
-    </div>
-  </div>
-</div>
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="exampleModalLabel">Crear Nueva Salida/Entrada</h5>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				<div class="modal-body">
+					<form id="enviar" action="<?= base_url('admin/Ent_sal/save_ent_sal'); ?>" method="POST">
+						<div class="form-row">
+							<div class="form-group col-6">
+								<label class="col-form-label">Tipo:</label>
+								<select class="form-control" name="tip_ent_sal" required>
+									<option value=""> - </option>
+									<option value="Salida">Salida</option>
+									<option value="Entrada">Entrada</option>
+								</select>
+							</div>
+							<div class="form-group col-6">
+								<label for="recipient-name" class="col-form-label">Cantidad:</label>
+								<input type="number" step="any" min="0" class="form-control" name="can_ent_sal" required>
+							</div>
+						</div>
+						<div class="form-row">
+							<div class="form-group col-6">
+								<label class="col-form-label">Moneda:</label>
+									<select class="form-control select2-divisas" name="id_divisa" required>
+										<option value=""> - </option>
+										<?php foreach ($divisas as $key) : ?>
+										<option value="<?= $key->id_divisa; ?>"> <?php echo $key->cod_divisa . " - " . $key->nom_divisa; ?> </option>
+										<?php endforeach; ?>
+									</select>
+						
+							</div>
+							<div class="form-group col-6">
+								<label class="col-form-label">Categoria:</label>
+								<select class="form-control select2-categorias" name="id_categoria" required>
+										<option value=""> - </option>
+										<?php foreach ($categorias as $key) : ?>
+										<option value="<?= $key->id_categoria; ?>"> <?php echo $key->nom_categoria; ?> </option>
+										<?php endforeach; ?>
+									</select>
+							</div>
+						</div>
+						
+						<div class="form-group">
+							<label class="col-form-label">Descripción:</label>
+							<textarea class="form-control" maxlength="50" name="des_ent_sal" required></textarea>
+						</div>
+					
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+					<button onclick="guardar();" type="submit" class="btn btn-success">Guardar</button>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
 
     <!-- Content Wrapper -->
     <div id="content-wrapper" class="d-flex flex-column">
@@ -150,7 +150,7 @@
             </div>
             <div class="card-body">
               <div class="table-responsive">
-                <table class="table table-bordered text-center" id="dataTable" width="100%" cellspacing="0">
+                <table id="table_sal_ent" class="table table-bordered text-center display" width="100%" cellspacing="0">
                   <thead>
                     <tr>
                       <th>ID</th>
@@ -161,6 +161,7 @@
                       <th>Moneda</th>
                       <th>Categoria</th>
                       <th>Descripcion</th>
+											<th></th>
                     </tr>
                   </thead>
                   <tbody>
@@ -170,7 +171,7 @@
                       <td><?= $key->fec_ent_sal; ?></td>
                       <td><?= $key->nom_usuario; ?></td>
                       <td><?= $key->tip_ent_sal; ?></td>
-                      <td><?= str_pad($key->can_ent_sal, 8); ?></td>
+                      <td><?= number_format($key->can_ent_sal, 2); ?></td>
                       <td><img style="width: 30px; height: 15px;" src="<?= base_url('assets/img/' . $key->cod_divisa .'.png'); ?>"> <?= $key->cod_divisa; ?></td>
                       <td><?= $key->nom_categoria; ?></td>
                       <td><?= $key->des_ent_sal; ?></td>
@@ -190,7 +191,9 @@
         <!-- /.container-fluid -->
       </div>
       <!-- End of Main Content -->
+			
       <script>
+				
         function guardar(){
           $("#enviar").on('submit', function(evt){
             evt.preventDefault(); 
@@ -250,5 +253,8 @@
             });
 
         }
+
+			
+
       </script>
 <?= $footer; ?>
