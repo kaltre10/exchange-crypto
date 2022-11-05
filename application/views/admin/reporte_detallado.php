@@ -373,12 +373,12 @@
 											numDocumento = "n/a";
 										}
 										
-										let amountSend = nodo1[3].textContent.split(" ")[1];
-										let moneySend = nodo1[3].textContent.split(" ")[3];
+										let amountSend = nodo1[3].textContent.split(" ").filter(e => e != "")[0];
+										let moneySend = nodo1[3].textContent.split(" ").filter(e => e != "")[1];
 										let correlativo = nodo2[3].textContent.split(":")[1].trim();
 										let cotizacion = nodo1[7].textContent;
-										let amounRec = nodo1[9].textContent.split(" ")[1];
-										let moneyRec = nodo1[9].textContent.split(" ")[3];
+										let amounRec = nodo1[9].textContent.split(" ").filter(e => e != "")[0];
+										let moneyRec = nodo1[9].textContent.split(" ").filter(e => e != "")[1];
 									
 								
 										const format = `
